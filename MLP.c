@@ -83,8 +83,7 @@ int ReLU_prime_vec(double** array, int dim1, int dim2)
 
 int onehot(int z, int a[n_out])
 {
-    //printf("onehot: z=%d\n", z);
-    //int a[n_out];
+    //int a[n_out];  is it better to use a local variable here?
     int i;
 
     for(i=0; i<n_out; i++)
@@ -95,35 +94,88 @@ int onehot(int z, int a[n_out])
     return 0;
 }
 
-int initialize_weights(double** W1, double** W2, double* b1, double* b2, int n_hidden, double coeff)
+int initialize_weights(double** W1, double** W2, double* b1, double* b2, int n_hidden)
 {
     srand(time(NULL));
 
     int i, j;
-    /*
-    double scale1 = coeff * sqrt(6.0 / (img_size + n_hidden));
-    double scale2 = coeff * sqrt(6.0 / (n_hidden + n_out));
-    */
-    double scale1 = coeff * sqrt(2.0 / img_size);
-    double scale2 = coeff * sqrt(2.0 / n_hidden);
 
     for(i=0; i<img_size; i++)
 	for(j=0; j< n_hidden; j++)
-	    W1[i][j] = scale1 * (2.0*rand()/RAND_MAX - 1);
+	    W1[i][j] =  sqrt(2.0 / img_size) * (2.0*rand()/RAND_MAX - 1);
 
     for(i=0; i<n_hidden; i++)
     {
-	b1[i] = scale1 * (2.0*rand()/RAND_MAX - 1);
+	b1[i] = 0;
 	for(j=0; j<n_out; j++)
-	    W2[i][j] = scale2 * (2.0*rand()/RAND_MAX - 1);
+	    W2[i][j] = sqrt(2.0 / n_hidden) * (2.0*rand()/RAND_MAX - 1);
     }
 
     for(i=0; i<n_out; i++)
-	b2[i] = scale2 * (2*rand()/RAND_MAX - 1);
+	b2[i] = 0;
 
     return 0;
 }
+        
 
+int print_weights(struct params* p)
+{
+    int i, j;
+
+    printf("\n\nFirst layer Weights and biases:\n\n");
+    for(i=0; i<10; i++)
+	printf("%.4f ", p->b1[i]);
+    printf("\n");
+
+    for(i=0; i<10; i++)
+    {
+	printf("\n");
+	for(j=0; j<10; j++)
+	    printf("%.4f ", p->W1[i][j]);
+    }
+    
+    printf("\n\nSecond layer Weights and biases:\n\n");
+    for(i=0; i<10; i++)
+	printf("%.4f ", p->b2[i]);
+    printf("\n");
+
+    for(i=0; i<10; i++)
+    {
+	printf("\n");
+	for(j=0; j<10; j++)
+	    printf("%.4f ", p->W2[i][j]);
+    }
+    return 0;
+}
+
+
+int print_image(int i, double** images, int* labels)
+{
+    int j, k;
+
+    printf("\n\n\nLabel: %d\n\n", i);
+
+    for(j=0; j<756; j+=28)
+	{
+	    printf("\n");
+	    for(k=0; k<28; k++)
+		printf("%.1f ", images[i][j+k]);
+	}
+    return 0;
+}
+
+int print_array(double** array, int dim1, int dim2)
+{
+    printf("\n\n");
+    int i, j;
+    for(i=0; i<dim1; i++)
+    {
+	printf("\n");
+	for(j=0; j<dim2; j++)
+	    printf("%.4f ", array[i][j]);
+    }
+    return 0;
+}
 
 int load_mnist(struct data* d, char* path)
 {
@@ -168,18 +220,22 @@ int dot(double** array1, double** array2, double** result, int dim1, int dim2, i
     //(dim1, dim2)x(dim2, dim3)
 
     int i, j, k;
+    double temp;
+
     for(i=0; i<dim1; i++)
-	for(j=0; j<dim2; j++)
-	    for(k=0; k<dim3; k++)
-		result[i][k] += array1[i][j] * array2[j][k];
+	for(k=0; k<dim3; k++)
+	{
+	    temp = 0;
+	    for(j=0; j<dim2; j++)
+		temp += array1[i][j] * array2[j][k];
+	    result[i][k] = temp;
+	}
 
     return 0;
 }
 
 int transpose(double** array, double** result, int dim1, int dim2)
 {
-    
-    //printf("\n\noutput hidden shape: (%d, %d)\n", dim1, dim2);
     int i, j;
     for(i=0; i<dim1; i++)
 	for(j=0; j<dim2; j++)
@@ -206,7 +262,7 @@ int substract(double** array1, int** array2, double** result, int dim1, int dim2
 
     for(i=0; i<dim1; i++)
 	for(j=0; j<dim2; j++)
-	    result[i][j] = array1[i][j] - array2[i][j];
+	    result[i][j] = array1[i][j] - (double)array2[i][j];
     
     return 0;
 }
@@ -271,6 +327,7 @@ int backprop(double** error_out, double** batch, double** z_hidden, double** out
 	    double** batch_transposed)
 {
 
+
     //grad->b1 or &(grad->b1)?  is grad->b1 passing by value, or by reference?
     sum_columns(error_out, grad->b2, n_out, batch_size);
 
@@ -300,6 +357,7 @@ int backprop(double** error_out, double** batch, double** z_hidden, double** out
 int update_parameters(struct params* p, struct params* grad, double scale, int n_hidden)
 {
     int i, j;
+
     for(i=0; i<img_size; i++)
 	for(j=0; j<n_hidden; j++)
 	    p->W1[i][j] -= scale * grad->W1[i][j];
@@ -323,11 +381,15 @@ int argmax(double** array, int* result, int dim1, int dim2)
     
     for(i=0; i<dim1; i++)
     {
-	max = 0;
+	max = -10000;
+	int position = -10000; //we want to segfault if position not updated
 	for(j=0; j<dim2; j++)
 	    if(array[i][j] > max)
+	    {
 		max = array[i][j];
-	result[i] = max;
+		position = j;
+	    }
+	result[i] = position;
     }
 
     return 0;
@@ -346,7 +408,9 @@ int count_correct(int* predictions, int* labels, int length)
 }
 
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
-		double** z_hidden_train, double** output_hidden_train, double** z_out_train, double** z_hidden_test, double** output_hidden_test, double** z_out_test,  int n_hidden, int i)
+		double** z_hidden_train, double** output_hidden_train, double** z_out_train, 
+		double** z_hidden_test, double** output_hidden_test, double** z_out_test,  
+		int n_hidden, int i)
 {
     int train_correct, test_correct;
     int training_predictions[ntrain];
@@ -372,7 +436,7 @@ int test_accuracy(struct data* d, struct params* p, struct accuracy* results,
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
     //path = "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/";
     char path[1000];
@@ -402,33 +466,27 @@ int main()
     struct params grad;
     struct accuracy results;
     
-    int batch_size=20;
+    int batch_size=200;
     int n_epochs=2;
-    double learning_rate=0.2;
-    double scale = learning_rate/batch_size;
-    double coeff = 1.0;
-
-    /*
-    if(argc != 6)
+    double learning_rate=0.02;
+    
+    if(argc != 5)
     {
-	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs] [coeff]\n\n");
+	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.02 4\n\n");
 	return 1;
     }
-    n_hidden = argv[1];
-    batch_size = argv[2];
-    learning_rate = argv[3];
-    n_epochs = argv[4];
-    coeff = argv[5];
-    */
+    n_hidden = atoi(argv[1]);
+    batch_size = atoi(argv[2]);
+    learning_rate = atof(argv[3]);
+    n_epochs = atoi(argv[4]);
+    
+    double scale = learning_rate/batch_size;
 
     printf("\nThis program trains a two layer fully connected neural network to recognize \
-handwritten digits (MNIST)\n");
-    printf("\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, Init Coefficient: %.2f, ", 
-	    n_hidden, batch_size, learning_rate, coeff);
-    printf("Training for %d epochs.\n\n", n_epochs);
+handwritten digits (MNIST)\n\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
+Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     int i, j;
-
 
     W1 = malloc(img_size * sizeof(double*));
     for(i=0; i<img_size; i++)
@@ -448,7 +506,7 @@ handwritten digits (MNIST)\n");
 
     printf("\nInitializing weights...\n");
 
-    initialize_weights(W1, W2, b1, b2, n_hidden, coeff);
+    initialize_weights(W1, W2, b1, b2, n_hidden);
 
     train_images = malloc(ntrain * sizeof(double*));
     for(i=0; i<ntrain; i++)
@@ -486,17 +544,6 @@ handwritten digits (MNIST)\n");
 	onehot(train_labels[i], train_labels_onehot[i]);
 
     d.train_labels_onehot = train_labels_onehot;
-
-    //printf("\nLoaded MNIST.\n");
-    /*    
-    printf("\n\nWeights and biases:\n\n");
-    for(i=0; i<50; i++)
-	printf("%lf, %lf\n", p.W1[0][i], p.b1[i]);
-
-    printf("\n\nTrain images and labels:\n\n");
-    for(i=0; i<100; i++)
-	printf("%.2f, %d\n", d.train_images[0][i], d.train_labels[i]);
-    */
 
     double** z_hidden;  //(batch_size, n_hidden)
     double** output_hidden; //same
