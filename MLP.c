@@ -472,7 +472,7 @@ int main(int argc, char** argv)
     
     if(argc != 5)
     {
-	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.02 4\n\n");
+	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
 	return 1;
     }
     n_hidden = atoi(argv[1]);
