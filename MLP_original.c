@@ -182,10 +182,10 @@ int load_mnist(struct data* d, char* path)
     FILE *tr_i, *tr_l, *te_i, *te_l;
     int i, j;
 
-    tr_i = fopen("mnist_text/train_images.txt", "r");
-    tr_l = fopen("mnist_text/train_labels.txt", "r");
-    te_i = fopen("mnist_text/test_images.txt", "r");
-    te_l = fopen("mnist_text/test_labels.txt", "r");
+    tr_i = fopen(strcat(path, "train_images.txt"), "r");
+    tr_l = fopen("/mnt/c/Users/Michael/Desktop/Research/Data/mnist/train_labels.txt", "r");
+    te_i = fopen("/mnt/c/Users/Michael/Desktop/Research/Data/mnist/test_images.txt", "r");
+    te_l = fopen("/mnt/c/Users/Michael/Desktop/Research/Data/mnist/test_labels.txt", "r");
 
     if(tr_i == NULL || tr_l == NULL || te_i == NULL || te_l == NULL)
     {
