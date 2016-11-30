@@ -1,0 +1,14 @@
+
+#!/bin/bash
+#SBATCH --job-name="hellompi"
+#SBATCH --output="output/hellompi.%j.%N.out"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=4
+#SBATCH --export=ALL
+#SBATCH -t 01:00:00
+#SBATCH -A TG-ASC160059
+#This job runs with 1 node, 8 cores per node for a total of 24 cores.
+#ibrun in verbose mode will give binding detail
+cd /home/$USER/hw2/public/CGsolver
+ibrun -v ./cgsolve 2000 out.txt
