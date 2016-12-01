@@ -694,10 +694,13 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 		int offset = rank * micro_batch_size;
 		double** micro_batch = &batches[j][offset];
 		int** micro_batch_labels = &batch_labels[j][offset];
-		if(offset + micro_batch_size < batch_size){
+	/*	if(offset + micro_batch_size < batch_size){
 				micro_batch_size = batch_size - offset;
 		}
-	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
+	 */   //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
+		if(i == 0 && j == 0){
+			printf("rank: %d, micro_batch_size: %d, offset: %d\n", rank, micro_batch_size, offset);
+		}
 	    feedforward(micro_batch, z_hidden, output_hidden, z_out, micro_batch_size, n_hidden, &p);
 
 	    substract(z_out, micro_batch_labels, error_out, micro_batch_size, n_out);
