@@ -713,8 +713,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	test_accuracy(&d, &p, &results, z_hidden_train, output_hidden_train, z_out_train, 
 			z_hidden_test, output_hidden_test, z_out_test, n_hidden, i);
 
-
-	printf("\nEpoch %d: training dataset accuracy: %.2f, test dataset accuracy: %.2f", 
+	if(rank == 0)
+		printf("\nEpoch %d: training dataset accuracy: %.2f, test dataset accuracy: %.2f", 
 		i, results.training[i], results.test[i]); 
 
     }
@@ -723,9 +723,10 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     double train_best = max(results.training, n_epochs);
     double test_best = max(results.test, n_epochs);
-
-    printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    printf("\n---- Program ran for %.1f seconds ----\n\n", (double)(end - begin)/CLOCKS_PER_SEC);
+    if(rank == 0){
+    	printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
+    	printf("\n---- Program ran for %.1f seconds ----\n\n", (double)(end - begin)/CLOCKS_PER_SEC);
+    }
 	MPI_Finalize();
     return 0;
 }
