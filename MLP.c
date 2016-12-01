@@ -497,8 +497,8 @@ int main(int argc, char** argv)
     n_epochs = atoi(argv[4]);
     
     double scale = learning_rate/batch_size;
-
-    printf("\nThis program trains a two layer fully connected neural network to recognize \
+    if(rank == 0)
+    	printf("\nThis program trains a two layer fully connected neural network to recognize \
 handwritten digits (MNIST)\n\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
 Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
@@ -522,7 +522,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(double));
 */
-    printf("\nInitializing weights...\n");
+    if(rank == 0)
+    	printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
 
@@ -554,8 +555,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     d.train_labels = train_labels;
     d.test_images = test_images;
     d.test_labels = test_labels;
-
-    printf("\nLoading MNIST dataset...\n");
+    if(rank == 0)
+    	printf("\nLoading MNIST dataset...\n");
     load_mnist(&d, path);  //first arg is a pointer to struct data
 
     for(i=0; i<ntrain; i++)
@@ -680,7 +681,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
 
     //***** Training Starts Here ******
-    printf("\nTraining network...\n");
+	if(rank == 0)
+		printf("\nTraining network...\n");
     
     clock_t begin = clock();
 
