@@ -703,10 +703,10 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	    backprop(error_out, micro_batch, z_hidden, output_hidden, z_out, p.W2, &grad, micro_batch_size, 
 		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed);
 		// communicate results
-		MPI_Allreduce(&(grad.b1[0]), &(grad.b1[0]), n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		MPI_Allreduce(&(grad.b2[0]), &(grad.b2[0]), n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		MPI_Allreduce(&(grad.W1[0][0]), &(grad.W1[0][0]), img_size * n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		MPI_Allreduce(&(grad.W2[0][0]), &(grad.W2[0][0]), n_hidden * n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(MPI_IN_PLACE, &(grad.b1[0]), n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(MPI_IN_PLACE, &(grad.b2[0]), n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(MPI_IN_PLACE, &(grad.W1[0][0]), img_size * n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(MPI_IN_PLACE, &(grad.W2[0][0]), n_hidden * n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	    update_parameters(&p, &grad, scale, n_hidden);
 	}
 
