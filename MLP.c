@@ -1,3 +1,4 @@
+#include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -438,6 +439,12 @@ int test_accuracy(struct data* d, struct params* p, struct accuracy* results,
 
 int main(int argc, char** argv)
 {
+	
+	MPI_Init( &argc, &argv );
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	printf("Size: %d, Rank: %d\n", size, rank);
     //path = "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/";
     char path[1000];
     strcpy(path, "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/");
