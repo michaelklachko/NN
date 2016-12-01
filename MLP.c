@@ -726,6 +726,6 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
     printf("\n---- Program ran for %.1f seconds ----\n\n", (double)(end - begin)/CLOCKS_PER_SEC);
-
+	MPI_Finalize();
     return 0;
 }
