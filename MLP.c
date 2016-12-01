@@ -691,7 +691,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 		int micro_batch_size = batch_size / size;
 		int offset = rank * micro_batch_size;
 		double** micro_batch = &batches[j][offset];
-		double** micro_batch_labels = &batch_labels[j][offset];
+		int** micro_batch_labels = &batch_labels[j][offset];
 		if(offset + micro_batch_size < batch_size){
 				micro_batch_size = batch_size - offset;
 		}
@@ -705,8 +705,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 		// communicate results
 		MPI_Allreduce(&(grad.b1[0]), &(grad.b1[0]), n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(&(grad.b2[0]), &(grad.b2[0]), n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		MPI_Allreduce(&(grad.w1[0][0]), &(grad.w1[0][0]), img_size * n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-		MPI_Allreduce(&(grad.w2[0][0]), &(grad.w2[0][0]), n_hidden * n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(&(grad.W1[0][0]), &(grad.W1[0][0]), img_size * n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(&(grad.W2[0][0]), &(grad.W2[0][0]), n_hidden * n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	    update_parameters(&p, &grad, scale, n_hidden);
 	}
 
