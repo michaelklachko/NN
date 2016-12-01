@@ -408,6 +408,15 @@ int count_correct(int* predictions, int* labels, int length)
     return n_correct;
 }
 
+double **alloc_2d_double(int rows, int cols){
+	double *data = (double *)malloc(rows*cols*sizeof(double));
+	double **array = (double **)malloc(rows * sizeof(double*));
+	int i;
+	for(i=0; i<rows; i++)
+		array[i] = &(data[cols * i]);
+	return array;
+}
+
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
 		double** z_hidden_train, double** output_hidden_train, double** z_out_train, 
 		double** z_hidden_test, double** output_hidden_test, double** z_out_test,  
@@ -503,14 +512,16 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     for(i=0; i<n_hidden; i++)
 	W2[i] = malloc(n_out * sizeof(double));
 
-    grad_W1 = malloc(img_size * sizeof(double*));
+	grad_W1 = alloc_2d_double(img_size, n_hidden);
+/*    grad_W1 = malloc(img_size * sizeof(double*));
     for(i=0; i<img_size; i++)
 	grad_W1[i] = malloc(n_hidden * sizeof(double));
-
-    grad_W2 = malloc(n_hidden * sizeof(double*));
+*/
+	grad_W2 = alloc_2d_double(n_hidden, n_out);
+/*    grad_W2 = malloc(n_hidden * sizeof(double*));
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(double));
-
+*/
     printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
@@ -677,14 +688,25 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     {
 	for(j=0; j<nbatches; j++)
 	{
+		int micro_batch_size = batch_size / size;
+		int offset = rank * micro_batch_size;
+		double** micro_batch = &batches[j][offset];
+		double** micro_batch_labels = &batch_labels[j][offset];
+		if(offset + micro_batch_size < batch_size){
+				micro_batch_size = batch_size - offset;
+		}
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
-	    feedforward(batches[j], z_hidden, output_hidden, z_out, batch_size, n_hidden, &p);
+	    feedforward(micro_batch, z_hidden, output_hidden, z_out, micro_batch_size, n_hidden, &p);
 
-	    substract(z_out, batch_labels[j], error_out, batch_size, n_out);
+	    substract(z_out, micro_batch_labels, error_out, micro_batch_size, n_out);
 
-	    backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad, batch_size, 
+	    backprop(error_out, micro_batch, z_hidden, output_hidden, z_out, p.W2, &grad, micro_batch_size, 
 		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed);
-
+		// communicate results
+		MPI_Allreduce(&(grad.b1[0]), &(grad.b1[0]), n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(&(grad.b2[0]), &(grad.b2[0]), n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(&(grad.w1[0][0]), &(grad.w1[0][0]), img_size * n_hidden, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(&(grad.w2[0][0]), &(grad.w2[0][0]), n_hidden * n_out, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	    update_parameters(&p, &grad, scale, n_hidden);
 	}
 
