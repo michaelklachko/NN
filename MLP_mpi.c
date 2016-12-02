@@ -417,6 +417,28 @@ float **alloc_2d_float(int rows, int cols){
 	return array;
 }
 
+void alloc_grad(struct params* grad, int img_size, int n_hidden, int n_out){
+	// W1 W2 b1 b2
+	int W1_len = img_size * n_hidden;
+	int W2_len = n_hidden * n_out;
+	int b1_len = n_hidden;
+	int b2_len = n_out;
+	int len = img_size * n_hidden + n_hidden * n_out + n_hidden + n_out;
+	float *data = (float *)malloc(len * sizeof(float));
+	float **W1 = (float **)malloc(img_size * sizeof(float*));
+	for(i=0; i<img_size; i++)
+		W1[i] = &(data[n_hidden * i]);
+	float **W2 = (float **)malloc(n_hidden * sizeof(float*));
+	for(i=0; i < n_hidden; i++)
+		W2[i] = &(data[W1_len + n_out * i]);
+	float *b1 = &(data(W1_len + W2_len));
+	float *b2 = &(data(W1_len + W2_len + b1_len));
+	grad->W1 = W1;
+	grad->W2 = W2;
+	grad->b1 = b1;
+	grad->b2 = b2;
+}
+
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
 		float** z_hidden_train, float** output_hidden_train, float** z_out_train, 
 		float** z_hidden_test, float** output_hidden_test, float** z_out_test,  
@@ -506,18 +528,18 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     W1 = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
-	W1[i] = malloc(n_hidden * sizeof(float));
+		W1[i] = malloc(n_hidden * sizeof(float));
 
     W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
-	W2[i] = malloc(n_out * sizeof(float));
+		W2[i] = malloc(n_out * sizeof(float));
 
-	grad_W1 = alloc_2d_float(img_size, n_hidden);
+//	grad_W1 = alloc_2d_float(img_size, n_hidden);
 /*    grad_W1 = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
 	grad_W1[i] = malloc(n_hidden * sizeof(float));
 */
-	grad_W2 = alloc_2d_float(n_hidden, n_out);
+//	grad_W2 = alloc_2d_float(n_hidden, n_out);
 /*    grad_W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(float));
@@ -529,11 +551,11 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     train_images = malloc(ntrain * sizeof(float*));
     for(i=0; i<ntrain; i++)
-	train_images[i] = malloc(img_size * sizeof(float));
+		train_images[i] = malloc(img_size * sizeof(float));
 
     test_images = malloc(ntest * sizeof(float*));
     for(i=0; i<ntest; i++)
-	test_images[i] = malloc(img_size * sizeof(float));
+		test_images[i] = malloc(img_size * sizeof(float));
 
     train_labels_onehot = malloc(ntrain * sizeof(int*));
     for(i=0; i<ntrain; i++)
@@ -545,11 +567,18 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     p.b1 = b1;
     p.b2 = b2;
 
-    grad.W1 = grad_W1;
+/*    grad.W1 = grad_W1;
     grad.b1 = grad_b1; 
     grad.W2 = grad_W2;
-    grad.b2 = grad_b2;
-       
+    grad.b2 = grad_b2;*/
+    alloc_grad(&grad, img_size, n_hidden, n_out);
+/*	MPI_Datatype Weighttype;
+	MPI_Datatype type[4] = {MPI_FLOAT,MPI_FLOAT,MPI_FLOAT,MPI_FLOAT};
+	int blocklen[4] = {img_size*n_hidden, n_hidden*n_out, n_hidden, n_out};
+	MPI_Aint disp[4];
+	disp[0] = &grad.W1 - &grad;
+	disp[1] = &grad.W2 - &grad;
+	disp[]*/
 
     d.train_images = train_images;
     d.train_labels = train_labels;
@@ -708,10 +737,11 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	    backprop(error_out, micro_batch, z_hidden, output_hidden, z_out, p.W2, &grad, micro_batch_size, 
 		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed);
 		// communicate results
-		MPI_Allreduce(MPI_IN_PLACE, &(grad.b1[0]), n_hidden, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(MPI_IN_PLACE, &(grad.W1[0][0]), (img_size * n_hidden) + (n_hidden * n_out) + n_hidden + n_out, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+/*		MPI_Allreduce(MPI_IN_PLACE, &(grad.b1[0]), n_hidden, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, &(grad.b2[0]), n_out, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 		MPI_Allreduce(MPI_IN_PLACE, &(grad.W1[0][0]), img_size * n_hidden, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
-		MPI_Allreduce(MPI_IN_PLACE, &(grad.W2[0][0]), n_hidden * n_out, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+		MPI_Allreduce(MPI_IN_PLACE, &(grad.W2[0][0]), n_hidden * n_out, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);*/
 	    update_parameters(&p, &grad, scale, n_hidden);
 	}
 
