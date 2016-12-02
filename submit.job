@@ -3,7 +3,7 @@
 #SBATCH --output="output/NN.%j.%N.out"
 #SBATCH --partition=compute
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=8
 #SBATCH --export=ALL
 #SBATCH -t 01:00:00
 #SBATCH -A TG-ASC160059

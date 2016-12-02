@@ -11,31 +11,31 @@
 
 struct data
 {
-    double** train_images;
+    float** train_images;
     int* train_labels;
-    double** test_images;
+    float** test_images;
     int* test_labels;
     int** train_labels_onehot;
 };
 
 struct params
 {
-    double** W1;
-    double** W2;
-    double* b1;
-    double* b2;
+    float** W1;
+    float** W2;
+    float* b1;
+    float* b2;
 };
 
 struct accuracy
 {
-    double* training;
-    double* test;
+    float* training;
+    float* test;
 };
 
-double max(double* array, int length)
+float max(float* array, int length)
 {
     int i;
-    double max_value = 0;
+    float max_value = 0;
     for(i=0; i<length; i++)
 	if(array[i] > max_value)
 	    max_value = array[i];
@@ -43,7 +43,7 @@ double max(double* array, int length)
     return max_value;
 }
 
-double ReLU(double z)
+float ReLU(float z)
 {
     if(z>0)
 	return z;
@@ -52,7 +52,7 @@ double ReLU(double z)
 }
 
 
-int ReLU_vec(double** array, double** result, int dim1, int dim2)
+int ReLU_vec(float** array, float** result, int dim1, int dim2)
 {
     int i, j;
     for(i=0; i<dim1; i++)
@@ -63,7 +63,7 @@ int ReLU_vec(double** array, double** result, int dim1, int dim2)
 }
 
 
-double ReLU_prime(double z)
+float ReLU_prime(float z)
 {
     if(z>0)
 	return 1;
@@ -71,7 +71,7 @@ double ReLU_prime(double z)
 	return 0;
 }
 
-int ReLU_prime_vec(double** array, int dim1, int dim2)
+int ReLU_prime_vec(float** array, int dim1, int dim2)
 {
     int i, j;
     for(i=0; i<dim1; i++)
@@ -94,7 +94,7 @@ int onehot(int z, int a[n_out])
     return 0;
 }
 
-int initialize_weights(double** W1, double** W2, double* b1, double* b2, int n_hidden)
+int initialize_weights(float** W1, float** W2, float* b1, float* b2, int n_hidden)
 {
     srand(time(NULL));
 
@@ -149,7 +149,7 @@ int print_weights(struct params* p)
 }
 
 
-int print_image(int i, double** images, int* labels)
+int print_image(int i, float** images, int* labels)
 {
     int j, k;
 
@@ -164,7 +164,7 @@ int print_image(int i, double** images, int* labels)
     return 0;
 }
 
-int print_array(double** array, int dim1, int dim2)
+int print_array(float** array, int dim1, int dim2)
 {
     printf("\n\n");
     int i, j;
@@ -197,13 +197,13 @@ int load_mnist(struct data* d, char* path)
     {
 	fscanf(tr_l, "%d", &d->train_labels[i]);
 	for(j=0; j<img_size; j++)
-	    fscanf(tr_i, "%lf", &d->train_images[i][j]);
+	    fscanf(tr_i, "%f", &d->train_images[i][j]);
     }
     for(i=0; i<ntest; i++)
     {
 	fscanf(te_l, "%d", &d->test_labels[i]);
 	for(j=0; j<img_size; j++)
-	    fscanf(te_i, "%lf", &d->test_images[i][j]);
+	    fscanf(te_i, "%f", &d->test_images[i][j]);
     }
     
     fclose(tr_i);
@@ -215,12 +215,12 @@ int load_mnist(struct data* d, char* path)
 }
 
 
-int dot(double** array1, double** array2, double** result, int dim1, int dim2, int dim3)
+int dot(float** array1, float** array2, float** result, int dim1, int dim2, int dim3)
 {
     //(dim1, dim2)x(dim2, dim3)
 
     int i, j, k;
-    double temp;
+    float temp;
 
     for(i=0; i<dim1; i++)
 	for(k=0; k<dim3; k++)
@@ -234,7 +234,7 @@ int dot(double** array1, double** array2, double** result, int dim1, int dim2, i
     return 0;
 }
 
-int transpose(double** array, double** result, int dim1, int dim2)
+int transpose(float** array, float** result, int dim1, int dim2)
 {
     int i, j;
     for(i=0; i<dim1; i++)
@@ -245,7 +245,7 @@ int transpose(double** array, double** result, int dim1, int dim2)
 }
 
 
-int add_vec(double** array, double* vec, int dim1, int dim2)
+int add_vec(float** array, float* vec, int dim1, int dim2)
 {
     int i, j;
 
@@ -256,18 +256,18 @@ int add_vec(double** array, double* vec, int dim1, int dim2)
     return 0;
 }
 
-int substract(double** array1, int** array2, double** result, int dim1, int dim2)
+int substract(float** array1, int** array2, float** result, int dim1, int dim2)
 {
     int i, j;
 
     for(i=0; i<dim1; i++)
 	for(j=0; j<dim2; j++)
-	    result[i][j] = array1[i][j] - (double)array2[i][j];
+	    result[i][j] = array1[i][j] - (float)array2[i][j];
     
     return 0;
 }
 
-int sum_columns(double** array, double* vec, int vec_length, int batch_size)
+int sum_columns(float** array, float* vec, int vec_length, int batch_size)
 {
 
     int i, j;
@@ -291,7 +291,7 @@ int sum_columns(double** array, double* vec, int vec_length, int batch_size)
 }
 
 
-int product(double** array1, double** array2, int dim1, int dim2)
+int product(float** array1, float** array2, int dim1, int dim2)
 {
     int i, j;
 
@@ -303,7 +303,7 @@ int product(double** array1, double** array2, int dim1, int dim2)
 }
 
 
-int feedforward(double** batch, double** z_hidden, double** output_hidden, double** z_out, 
+int feedforward(float** batch, float** z_hidden, float** output_hidden, float** z_out, 
 		int batch_size, int n_hidden, struct params* p)
 {
 
@@ -321,10 +321,10 @@ int feedforward(double** batch, double** z_hidden, double** output_hidden, doubl
 }
 
 
-int backprop(double** error_out, double** batch, double** z_hidden, double** output_hidden,
-	    double** z_out, double** W2, struct params* grad, int batch_size, int n_hidden, 
-	    double** error_hidden, double** output_hidden_transposed, double** W2_transposed,
-	    double** batch_transposed)
+int backprop(float** error_out, float** batch, float** z_hidden, float** output_hidden,
+	    float** z_out, float** W2, struct params* grad, int batch_size, int n_hidden, 
+	    float** error_hidden, float** output_hidden_transposed, float** W2_transposed,
+	    float** batch_transposed)
 {
 
 
@@ -354,7 +354,7 @@ int backprop(double** error_out, double** batch, double** z_hidden, double** out
 }
 
 
-int update_parameters(struct params* p, struct params* grad, double scale, int n_hidden)
+int update_parameters(struct params* p, struct params* grad, float scale, int n_hidden)
 {
     int i, j;
 
@@ -374,10 +374,10 @@ int update_parameters(struct params* p, struct params* grad, double scale, int n
     return 0;
 }
 
-int argmax(double** array, int* result, int dim1, int dim2)
+int argmax(float** array, int* result, int dim1, int dim2)
 {
     int i, j;
-    double max;
+    float max;
     
     for(i=0; i<dim1; i++)
     {
@@ -408,8 +408,8 @@ int count_correct(int* predictions, int* labels, int length)
 }
 
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
-		double** z_hidden_train, double** output_hidden_train, double** z_out_train, 
-		double** z_hidden_test, double** output_hidden_test, double** z_out_test,  
+		float** z_hidden_train, float** output_hidden_train, float** z_out_train, 
+		float** z_hidden_test, float** output_hidden_test, float** z_out_test,  
 		int n_hidden, int i)
 {
     int train_correct, test_correct;
@@ -422,7 +422,7 @@ int test_accuracy(struct data* d, struct params* p, struct accuracy* results,
     
     train_correct = count_correct(training_predictions, d->train_labels, ntrain);
 
-    results->training[i] = 100 * train_correct / (double)ntrain;
+    results->training[i] = 100 * train_correct / (float)ntrain;
 
     feedforward(d->test_images, z_hidden_test, output_hidden_test, z_out_test, ntest, n_hidden, p);
 
@@ -430,7 +430,7 @@ int test_accuracy(struct data* d, struct params* p, struct accuracy* results,
 
     test_correct = count_correct(test_predictions, d->test_labels, ntest);
 
-    results->test[i] = 100 * test_correct / (double)ntest;
+    results->test[i] = 100 * test_correct / (float)ntest;
 
     return 0;
 }
@@ -444,20 +444,20 @@ int main(int argc, char** argv)
 
     int n_hidden=50;
 
-    double** W1;
-    double b1[n_hidden];
-    double** W2;
-    double b2[n_out];
+    float** W1;
+    float b1[n_hidden];
+    float** W2;
+    float b2[n_out];
  
-    double** grad_W1;
-    double grad_b1[n_hidden];
-    double** grad_W2;
-    double grad_b2[n_out];
+    float** grad_W1;
+    float grad_b1[n_hidden];
+    float** grad_W2;
+    float grad_b2[n_out];
     
 
-    double** train_images;
+    float** train_images;
     int train_labels[ntrain];
-    double** test_images;
+    float** test_images;
     int test_labels[ntest];
     int** train_labels_onehot;
     
@@ -468,7 +468,7 @@ int main(int argc, char** argv)
     
     int batch_size=200;
     int n_epochs=2;
-    double learning_rate=0.02;
+    float learning_rate=0.02;
     
     if(argc != 5)
     {
@@ -480,7 +480,7 @@ int main(int argc, char** argv)
     learning_rate = atof(argv[3]);
     n_epochs = atoi(argv[4]);
     
-    double scale = learning_rate/batch_size;
+    float scale = learning_rate/batch_size;
 
     printf("\nThis program trains a two layer fully connected neural network to recognize \
 handwritten digits (MNIST)\n\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
@@ -488,33 +488,33 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     int i, j;
 
-    W1 = malloc(img_size * sizeof(double*));
+    W1 = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
-	W1[i] = malloc(n_hidden * sizeof(double));
+	W1[i] = malloc(n_hidden * sizeof(float));
 
-    W2 = malloc(n_hidden * sizeof(double*));
+    W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
-	W2[i] = malloc(n_out * sizeof(double));
+	W2[i] = malloc(n_out * sizeof(float));
 
-    grad_W1 = malloc(img_size * sizeof(double*));
+    grad_W1 = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
-	grad_W1[i] = malloc(n_hidden * sizeof(double));
+	grad_W1[i] = malloc(n_hidden * sizeof(float));
 
-    grad_W2 = malloc(n_hidden * sizeof(double*));
+    grad_W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
-	grad_W2[i] = malloc(n_out * sizeof(double));
+	grad_W2[i] = malloc(n_out * sizeof(float));
 
     printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
 
-    train_images = malloc(ntrain * sizeof(double*));
+    train_images = malloc(ntrain * sizeof(float*));
     for(i=0; i<ntrain; i++)
-	train_images[i] = malloc(img_size * sizeof(double));
+	train_images[i] = malloc(img_size * sizeof(float));
 
-    test_images = malloc(ntest * sizeof(double*));
+    test_images = malloc(ntest * sizeof(float*));
     for(i=0; i<ntest; i++)
-	test_images[i] = malloc(img_size * sizeof(double));
+	test_images[i] = malloc(img_size * sizeof(float));
 
     train_labels_onehot = malloc(ntrain * sizeof(int*));
     for(i=0; i<ntrain; i++)
@@ -545,51 +545,51 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     d.train_labels_onehot = train_labels_onehot;
 
-    double** z_hidden;  //(batch_size, n_hidden)
-    double** output_hidden; //same
-    double** z_out;      //(batch_size, n_out)
-    double** output_hidden_transposed;  //do we really need it?
+    float** z_hidden;  //(batch_size, n_hidden)
+    float** output_hidden; //same
+    float** z_out;      //(batch_size, n_out)
+    float** output_hidden_transposed;  //do we really need it?
 
-    z_hidden = malloc(batch_size * sizeof(double*));
+    z_hidden = malloc(batch_size * sizeof(float*));
     for(i=0; i<batch_size; i++)
-	z_hidden[i] = malloc(n_hidden * sizeof(double));
+	z_hidden[i] = malloc(n_hidden * sizeof(float));
 
-    output_hidden = malloc(batch_size * sizeof(double*));
+    output_hidden = malloc(batch_size * sizeof(float*));
     for(i=0; i<batch_size; i++)
-	output_hidden[i] = malloc(n_hidden * sizeof(double));
+	output_hidden[i] = malloc(n_hidden * sizeof(float));
 
-    output_hidden_transposed = malloc(n_hidden * sizeof(double*));
+    output_hidden_transposed = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
-	output_hidden_transposed[i] = malloc(batch_size * sizeof(double));
+	output_hidden_transposed[i] = malloc(batch_size * sizeof(float));
 
-    z_out = malloc(batch_size * sizeof(double*));
+    z_out = malloc(batch_size * sizeof(float*));
     for(i=0; i<batch_size; i++)
-	z_out[i] = malloc(n_out * sizeof(double));
+	z_out[i] = malloc(n_out * sizeof(float));
 
-    double** error_out;  //output layer errors
-    double** error_hidden; //hidden layer errors
+    float** error_out;  //output layer errors
+    float** error_hidden; //hidden layer errors
 
-    error_out = malloc(batch_size * sizeof(double*));
+    error_out = malloc(batch_size * sizeof(float*));
     for(i=0; i<batch_size; i++)
-	error_out[i] = malloc(n_out * sizeof(double));
+	error_out[i] = malloc(n_out * sizeof(float));
 
-    error_hidden = malloc(batch_size * sizeof(double*));
+    error_hidden = malloc(batch_size * sizeof(float*));
     for(i=0; i<batch_size; i++)
-	error_hidden[i] = malloc(n_hidden * sizeof(double));
+	error_hidden[i] = malloc(n_hidden * sizeof(float));
 
 
 
-    double*** batches;    //3D array: (nbatches, batch_size, img_size)
+    float*** batches;    //3D array: (nbatches, batch_size, img_size)
 
     int nbatches = ntrain/batch_size;
 
-    batches = malloc((nbatches) * sizeof(double*));
+    batches = malloc((nbatches) * sizeof(float*));
     for(i=0; i<nbatches; i++)
     {
-	batches[i] = malloc(batch_size * sizeof(double*));
+	batches[i] = malloc(batch_size * sizeof(float*));
 	for(j=0; j<batch_size; j++)
 	{
-	    batches[i][j] = malloc(img_size * sizeof(double));
+	    batches[i][j] = malloc(img_size * sizeof(float));
 	    batches[i][j] = train_images[i*batch_size + j];  
 	}
     }
@@ -607,58 +607,58 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	}
     }
 
-    double** W2_transposed;
-    double** batch_transposed;
+    float** W2_transposed;
+    float** batch_transposed;
 
-    W2_transposed = malloc(n_out * sizeof(double*));
+    W2_transposed = malloc(n_out * sizeof(float*));
     for(i=0; i<n_out; i++)
-	W2_transposed[i] = malloc(n_hidden * sizeof(double));
+	W2_transposed[i] = malloc(n_hidden * sizeof(float));
 
-    batch_transposed = malloc(img_size * sizeof(double*));
+    batch_transposed = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
-	batch_transposed[i] = malloc(batch_size * sizeof(double));
+	batch_transposed[i] = malloc(batch_size * sizeof(float));
 
-    double* training_results;
-    double* test_results;
+    float* training_results;
+    float* test_results;
 
-    training_results = malloc(n_epochs * sizeof(double));
-    test_results = malloc(n_epochs * sizeof(double));
+    training_results = malloc(n_epochs * sizeof(float));
+    test_results = malloc(n_epochs * sizeof(float));
 	
     results.training = training_results;
     results.test = test_results;
 
 
-    double** z_hidden_train;  //(60k, n_hidden)
-    double** output_hidden_train; //same
-    double** z_out_train;      //(60k, n_out)
+    float** z_hidden_train;  //(60k, n_hidden)
+    float** output_hidden_train; //same
+    float** z_out_train;      //(60k, n_out)
 
-    z_hidden_train = malloc(ntrain * sizeof(double*));
+    z_hidden_train = malloc(ntrain * sizeof(float*));
     for(i=0; i<ntrain; i++)
-	z_hidden_train[i] = malloc(n_hidden * sizeof(double));
+	z_hidden_train[i] = malloc(n_hidden * sizeof(float));
 
-    output_hidden_train = malloc(ntrain * sizeof(double*));
+    output_hidden_train = malloc(ntrain * sizeof(float*));
     for(i=0; i<ntrain; i++)
-	output_hidden_train[i] = malloc(n_hidden * sizeof(double));
+	output_hidden_train[i] = malloc(n_hidden * sizeof(float));
 
-    z_out_train = malloc(ntrain * sizeof(double*));
+    z_out_train = malloc(ntrain * sizeof(float*));
     for(i=0; i<ntrain; i++)
-	z_out_train[i] = malloc(n_out * sizeof(double));
+	z_out_train[i] = malloc(n_out * sizeof(float));
 
-    double** z_hidden_test;  //(10k, n_hidden)
-    double** output_hidden_test; //same
-    double** z_out_test;      //(10k, n_out)
+    float** z_hidden_test;  //(10k, n_hidden)
+    float** output_hidden_test; //same
+    float** z_out_test;      //(10k, n_out)
 
-    z_hidden_test = malloc(ntest * sizeof(double*));
+    z_hidden_test = malloc(ntest * sizeof(float*));
     for(i=0; i<ntest; i++)
-	z_hidden_test[i] = malloc(n_hidden * sizeof(double));
+	z_hidden_test[i] = malloc(n_hidden * sizeof(float));
 
-    output_hidden_test = malloc(ntest * sizeof(double*));
+    output_hidden_test = malloc(ntest * sizeof(float*));
     for(i=0; i<ntest; i++)
-	output_hidden_test[i] = malloc(n_hidden * sizeof(double));
+	output_hidden_test[i] = malloc(n_hidden * sizeof(float));
 
-    z_out_test = malloc(ntest * sizeof(double*));
+    z_out_test = malloc(ntest * sizeof(float*));
     for(i=0; i<ntest; i++)
-	z_out_test[i] = malloc(n_out * sizeof(double));
+	z_out_test[i] = malloc(n_out * sizeof(float));
 
 
     //***** Training Starts Here ******
@@ -692,11 +692,11 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     clock_t end = clock();
 
-    double train_best = max(results.training, n_epochs);
-    double test_best = max(results.test, n_epochs);
+    float train_best = max(results.training, n_epochs);
+    float test_best = max(results.test, n_epochs);
 
     printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    printf("\n---- Program ran for %.1f seconds ----\n\n", (double)(end - begin)/CLOCKS_PER_SEC);
+    printf("\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
 
     return 0;
 }

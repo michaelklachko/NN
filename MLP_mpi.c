@@ -198,13 +198,13 @@ int load_mnist(struct data* d, char* path)
     {
 	fscanf(tr_l, "%d", &d->train_labels[i]);
 	for(j=0; j<img_size; j++)
-	    fscanf(tr_i, "%lf", &d->train_images[i][j]);
+	    fscanf(tr_i, "%f", &d->train_images[i][j]);
     }
     for(i=0; i<ntest; i++)
     {
 	fscanf(te_l, "%d", &d->test_labels[i]);
 	for(j=0; j<img_size; j++)
-	    fscanf(te_i, "%lf", &d->test_images[i][j]);
+	    fscanf(te_i, "%f", &d->test_images[i][j]);
     }
     
     fclose(tr_i);
@@ -417,12 +417,13 @@ float **alloc_2d_float(int rows, int cols){
 	return array;
 }
 
-void alloc_grad(struct params* grad, int img_size, int n_hidden, int n_out){
+int alloc_grad(struct params* grad, int n_hidden){
 	// W1 W2 b1 b2
 	int W1_len = img_size * n_hidden;
 	int W2_len = n_hidden * n_out;
 	int b1_len = n_hidden;
 	int b2_len = n_out;
+	int i;
 	int len = img_size * n_hidden + n_hidden * n_out + n_hidden + n_out;
 	float *data = (float *)malloc(len * sizeof(float));
 	float **W1 = (float **)malloc(img_size * sizeof(float*));
@@ -431,12 +432,13 @@ void alloc_grad(struct params* grad, int img_size, int n_hidden, int n_out){
 	float **W2 = (float **)malloc(n_hidden * sizeof(float*));
 	for(i=0; i < n_hidden; i++)
 		W2[i] = &(data[W1_len + n_out * i]);
-	float *b1 = &(data(W1_len + W2_len));
-	float *b2 = &(data(W1_len + W2_len + b1_len));
+	float *b1 = &(data[W1_len + W2_len]);
+	float *b2 = &(data[W1_len + W2_len + b1_len]);
 	grad->W1 = W1;
 	grad->W2 = W2;
 	grad->b1 = b1;
 	grad->b2 = b2;
+	return 0;
 }
 
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
@@ -571,7 +573,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     grad.b1 = grad_b1; 
     grad.W2 = grad_W2;
     grad.b2 = grad_b2;*/
-    alloc_grad(&grad, img_size, n_hidden, n_out);
+    alloc_grad(&grad, n_hidden);
 /*	MPI_Datatype Weighttype;
 	MPI_Datatype type[4] = {MPI_FLOAT,MPI_FLOAT,MPI_FLOAT,MPI_FLOAT};
 	int blocklen[4] = {img_size*n_hidden, n_hidden*n_out, n_hidden, n_out};
