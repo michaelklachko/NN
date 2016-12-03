@@ -247,7 +247,7 @@ int dot1(float** array1, float** array2, float** result, int dim1, int dim2, int
 	{
 	    temp = 0;
 	    for(j=0; j<dim2; j++)
-		temp += array1[i][j] * array2[j][k];
+		temp += array1[i][offset + j] * array2[j][k];
 	    result[i][k] = temp;
 	}
 
@@ -709,7 +709,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     {
 	for(j=0; j<nbatches; j++)
 	{
-	    for(k=0; k < batch_size; k++){
+	    cilk_for(k=0; k < batch_size; k++){
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
 		//int micro_batch_size = 1;
 		int offset = k;
@@ -718,12 +718,13 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	    	feedforward(&batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], 1, n_hidden, &p);
 
 	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], 1, n_out);
-
-	    	backprop(&error_out[offset], &batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad, 1, 
-		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed, offset);
 	    }
+	    	backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad, batch_size, 
+		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed, 0);
+	    
 
 	    update_parameters(&p, &grad, scale, n_hidden);
+	    //transpose(p.W2, W2_transposed, n_hidden, n_out, 0);
 	}
 
 	test_accuracy(&d, &p, &results, z_hidden_train, output_hidden_train, z_out_train, 
