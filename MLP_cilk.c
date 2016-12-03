@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <cilk/cilk.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -330,14 +331,15 @@ int backprop(float** error_out, float** batch, float** z_hidden, float** output_
 
     //grad->b1 or &(grad->b1)?  is grad->b1 passing by value, or by reference?
     sum_columns(error_out, grad->b2, n_out, batch_size);
+    float output_hidden_t[n_hidden][1];
+    transpose(output_hidden, output_hidden_t, batch_size, n_hidden);
 
-    transpose(output_hidden, output_hidden_transposed, batch_size, n_hidden);
-
-    dot(output_hidden_transposed, error_out, grad->W2, n_hidden, batch_size, n_out);
+    dot(output_hidden_t, error_out, grad->W2, n_hidden, batch_size, n_out);
     
-    transpose(W2, W2_transposed, n_hidden, n_out);
+    float W2_t[n_out][n_hidden];
+    transpose(W2, W2_t, n_hidden, n_out);
 
-    dot(error_out, W2_transposed, error_hidden, batch_size, n_out, n_hidden);
+    dot(error_out, W2_t, error_hidden, batch_size, n_out, n_hidden);
 
     ReLU_prime_vec(z_hidden, batch_size, n_hidden);
 
@@ -345,10 +347,10 @@ int backprop(float** error_out, float** batch, float** z_hidden, float** output_
     product(error_hidden, z_hidden, batch_size, n_hidden);
 
     sum_columns(error_hidden, grad->b1, n_hidden, batch_size);
+    float batch_t[img_size][1]
+    transpose(batch, batch_t, batch_size, img_size);
 
-    transpose(batch, batch_transposed, batch_size, img_size);
-
-    dot(batch_transposed, error_hidden, grad->W1, img_size, batch_size, n_hidden);
+    dot(batch_t, error_hidden, grad->W1, img_size, batch_size, n_hidden);
     
     return 0;
 }
@@ -665,18 +667,24 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     printf("\nTraining network...\n");
     
     clock_t begin = clock();
-
+    int k;
     for(i=0; i<n_epochs; i++)
     {
 	for(j=0; j<nbatches; j++)
 	{
+	    for(k=0; k < batch_size; k++){
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
-	    feedforward(batches[j], z_hidden, output_hidden, z_out, batch_size, n_hidden, &p);
+		//int micro_batch_size = 1;
+		int offset = k;
+		//float** micro_batch = &batches[j][offset];
+		//int** micro_batch_labels = &batch_labels[j][offset];
+	    	feedforward(&batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], 1, n_hidden, &p);
 
-	    substract(z_out, batch_labels[j], error_out, batch_size, n_out);
+	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], 1, n_out);
 
-	    backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad, batch_size, 
-		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed);
+	    	backprop(&error_out[offset], &batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad, 1, 
+		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed);
+	    }
 
 	    update_parameters(&p, &grad, scale, n_hidden);
 	}
