@@ -235,12 +235,49 @@ int dot(float** array1, float** array2, float** result, int dim1, int dim2, int 
     return 0;
 }
 
-int transpose(float** array, float** result, int dim1, int dim2)
+int dot1(float** array1, float** array2, float** result, int dim1, int dim2, int dim3, int offset)
+{
+    //(dim1, dim2)x(dim2, dim3)
+
+    int i, j, k;
+    float temp;
+
+    for(i=0; i<dim1; i++)
+	for(k=0; k<dim3; k++)
+	{
+	    temp = 0;
+	    for(j=0; j<dim2; j++)
+		temp += array1[i][j] * array2[j][k];
+	    result[i][k] = temp;
+	}
+
+    return 0;
+}
+int dot2(float** array1, float** array2, float** result, int dim1, int dim2, int dim3, int offset)
+{
+    //(dim1, dim2)x(dim2, dim3)
+
+    int i, j, k;
+    float temp;
+
+    for(i=0; i<dim1; i++)
+	for(k=0; k<dim3; k++)
+	{
+	    temp = 0;
+	    for(j=0; j<dim2; j++)
+		temp += array1[i][offset + j] * array2[j][k];
+	    result[i][k] = temp;
+	}
+
+    return 0;
+}
+
+int transpose(float** array, float** result, int dim1, int dim2, int offset)
 {
     int i, j;
     for(i=0; i<dim1; i++)
 	for(j=0; j<dim2; j++)
-	    result[j][i] = array[i][j];
+	    result[j][offset + i] = array[i][j];
 
     return 0;
 }
@@ -325,21 +362,21 @@ int feedforward(float** batch, float** z_hidden, float** output_hidden, float** 
 int backprop(float** error_out, float** batch, float** z_hidden, float** output_hidden,
 	    float** z_out, float** W2, struct params* grad, int batch_size, int n_hidden, 
 	    float** error_hidden, float** output_hidden_transposed, float** W2_transposed,
-	    float** batch_transposed)
+	    float** batch_transposed, int offset)
 {
 
 
     //grad->b1 or &(grad->b1)?  is grad->b1 passing by value, or by reference?
     sum_columns(error_out, grad->b2, n_out, batch_size);
-    float output_hidden_t[n_hidden][1];
-    transpose(output_hidden, output_hidden_t, batch_size, n_hidden);
+    //float output_hidden_t[n_hidden][batch_size];
+    transpose(output_hidden, output_hidden_transposed, batch_size, n_hidden, offset);
 
-    dot(output_hidden_t, error_out, grad->W2, n_hidden, batch_size, n_out);
+    dot1(output_hidden_transposed, error_out, grad->W2, n_hidden, batch_size, n_out, offset);
     
-    float W2_t[n_out][n_hidden];
-    transpose(W2, W2_t, n_hidden, n_out);
+    //float W2_t[n_out][n_hidden];
+    transpose(W2, W2_transposed, n_hidden, n_out, 0);
 
-    dot(error_out, W2_t, error_hidden, batch_size, n_out, n_hidden);
+    dot(error_out, W2_transposed, error_hidden, batch_size, n_out, n_hidden);
 
     ReLU_prime_vec(z_hidden, batch_size, n_hidden);
 
@@ -347,10 +384,10 @@ int backprop(float** error_out, float** batch, float** z_hidden, float** output_
     product(error_hidden, z_hidden, batch_size, n_hidden);
 
     sum_columns(error_hidden, grad->b1, n_hidden, batch_size);
-    float batch_t[img_size][1]
-    transpose(batch, batch_t, batch_size, img_size);
+    //float batch_t[img_size][batch_size]
+    transpose(batch, batch_transposed, batch_size, img_size, offset);
 
-    dot(batch_t, error_hidden, grad->W1, img_size, batch_size, n_hidden);
+    dot1(batch_transposed, error_hidden, grad->W1, img_size, batch_size, n_hidden, offset);
     
     return 0;
 }
@@ -683,7 +720,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], 1, n_out);
 
 	    	backprop(&error_out[offset], &batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad, 1, 
-		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed);
+		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed, offset);
 	    }
 
 	    update_parameters(&p, &grad, scale, n_hidden);
