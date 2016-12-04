@@ -704,24 +704,27 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     //***** Training Starts Here ******
     printf("\nTraining network...\n");
-    
     clock_t begin = clock();
     int k;
     for(i=0; i<n_epochs; i++)
     {
 	for(j=0; j<nbatches; j++)
 	{
-	    cilk_for(k=0; k < batch_size; k++){
+	    //int micro_batch_size = batch_size / n_workers;
+	    cilk_for(k=0; k < n_workers/; k++){
 		int worker = __cilkrts_get_worker_number();
-		printf("Worker number: %d\n", worker);
+		//printf("Worker number: %d\n", worker);
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
 		//int micro_batch_size = 1;
-		int offset = k;
+		int micro_batch_size = batch_size / n_workers;
+		int offset = k * micro_batch_size;
+		if(offset + micro_batch_size > batch_size)
+		    micro_batch_size = batch_size - offset;
 		//float** micro_batch = &batches[j][offset];
 		//int** micro_batch_labels = &batch_labels[j][offset];
-	    	feedforward(&batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], 1, n_hidden, &p);
+	    	feedforward(&batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], micro_batch_size, n_hidden, &p);
 
-	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], 1, n_out);
+	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], micro_batch_size, n_out);
 	    }
 	    	backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad, batch_size, 
 		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed, 0);
