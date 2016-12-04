@@ -446,7 +446,21 @@ int count_correct(int* predictions, int* labels, int length)
 
     return n_correct;
 }
+void alloc_grad(struct params *grad, int n_workers){
+	int i;
+	for(i = 0; i < n_workers; i++){
+		g = grad[i]
+		g.W1 = malloc(img_size * sizeof(float*));
+    		for(i=0; i<img_size; i++)
+			grad_W1[i] = malloc(n_hidden * sizeof(float));
 
+    		g.W2 = malloc(n_hidden * sizeof(float*));
+    		for(i=0; i<n_hidden; i++)
+			grad_W2[i] = malloc(n_out * sizeof(float));
+		g.b1 = (float)malloc(n_hidden * sizeof(float));
+		g.b2 = (float)malloc(n_hidden * sizeof(float));
+	}
+}
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
 		float** z_hidden_train, float** output_hidden_train, float** z_out_train, 
 		float** z_hidden_test, float** output_hidden_test, float** z_out_test,  
@@ -504,7 +518,7 @@ int main(int argc, char** argv)
     
     struct params p;
     struct data d;
-    struct params grad;
+    struct params grad[n_workers];
     struct accuracy results;
     
     int batch_size=200;
@@ -536,7 +550,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
 	W2[i] = malloc(n_out * sizeof(float));
-
+/*
     grad_W1 = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
 	grad_W1[i] = malloc(n_hidden * sizeof(float));
@@ -544,7 +558,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     grad_W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(float));
-
+*/
     printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
@@ -567,11 +581,24 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     p.b1 = b1;
     p.b2 = b2;
 
+
+	for(i = 0; i < n_workers; i++){
+		grad[i].W1 = malloc(img_size * sizeof(float*));
+    		for(i=0; i<img_size; i++)
+			grad_W1[i] = malloc(n_hidden * sizeof(float));
+
+    		grad[i].W2 = malloc(n_hidden * sizeof(float*));
+    		for(i=0; i<n_hidden; i++)
+			grad_W2[i] = malloc(n_out * sizeof(float));
+		grad[i].b1 = (float)malloc(n_hidden * sizeof(float));
+		grad[i].b2 = (float)malloc(n_hidden * sizeof(float));
+	}
+/*	
     grad.W1 = grad_W1;
     grad.b1 = grad_b1; 
     grad.W2 = grad_W2;
     grad.b2 = grad_b2;
-       
+  */     
 
     d.train_images = train_images;
     d.train_labels = train_labels;
@@ -725,12 +752,12 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	    	feedforward(&batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], micro_batch_size, n_hidden, &p);
 
 	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], micro_batch_size, n_out);
-	    }
-	    	backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad, batch_size, 
-		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed, 0);
 	    
-
-	    update_parameters(&p, &grad, scale, n_hidden);
+	    	backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad[k], batch_size, 
+		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed, 0);
+	     }
+		for(k = 0; k < n_workers; k++)
+	   	 update_parameters(&p, &grad[k], scale, n_hidden);
 	    //transpose(p.W2, W2_transposed, n_hidden, n_out, 0);
 	}
 
