@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -482,7 +483,8 @@ int main(int argc, char** argv)
     strcpy(path, "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/");
 
     int n_hidden=50;
-
+    int n_workers = __cilkrts_get_nworkers();
+    printf("Number of workers: %d\n", n_workers);
     float** W1;
     float b1[n_hidden];
     float** W2;
@@ -710,6 +712,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	for(j=0; j<nbatches; j++)
 	{
 	    cilk_for(k=0; k < batch_size; k++){
+		int worker = __cilkrts_get_worker_number();
+		printf("Worker number: %d\n", worker);
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
 		//int micro_batch_size = 1;
 		int offset = k;
