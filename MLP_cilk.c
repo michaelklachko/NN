@@ -738,7 +738,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	for(j=0; j<nbatches; j++)
 	{
 	    //int micro_batch_size = batch_size / n_workers;
-	    cilk_for(k=0; k < n_workers/; k++){
+	    cilk_for(k=0; k < n_workers; k++){
 		int worker = __cilkrts_get_worker_number();
 		//printf("Worker number: %d\n", worker);
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
