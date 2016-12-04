@@ -10,4 +10,4 @@
 #This job runs with 1 node, 8 cores per node for a total of 24 cores.
 #ibrun in verbose mode will give binding detail
 export CILK_NWORKERS=12
-./MLP_cilk 50 1000 .2 10
+./MLP_cilk 50 200 .2 10
