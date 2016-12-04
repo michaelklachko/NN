@@ -753,8 +753,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
 	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], micro_batch_size, n_out);
 	    
-	    	backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad[k], batch_size, 
-		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed, 0);
+	    	backprop(&error_out[j], batches[j], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad[k], micro_batch_size, 
+		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed, offset);
 	     }
 		for(k = 0; k < n_workers; k++)
 	   	 update_parameters(&p, &grad[k], scale, n_hidden);
