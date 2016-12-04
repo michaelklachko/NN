@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name="NN"
-#SBATCH --output="output/NN.%j.%N.out"
+#SBATCH --job-name="NN_mpi"
+#SBATCH --output="output/NN_mpi.%j.%N.out"
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8

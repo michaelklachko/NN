@@ -1,6 +1,5 @@
+#include "cilk/cilk.h"
 #include <stdio.h>
-#include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -224,7 +223,7 @@ int dot(float** array1, float** array2, float** result, int dim1, int dim2, int 
     int i, j, k;
     float temp;
 
-    for(i=0; i<dim1; i++)
+    cilk_for(i=0; i<dim1; i++)
 	for(k=0; k<dim3; k++)
 	{
 	    temp = 0;
@@ -236,49 +235,12 @@ int dot(float** array1, float** array2, float** result, int dim1, int dim2, int 
     return 0;
 }
 
-int dot1(float** array1, float** array2, float** result, int dim1, int dim2, int dim3, int offset)
-{
-    //(dim1, dim2)x(dim2, dim3)
-
-    int i, j, k;
-    float temp;
-
-    for(i=0; i<dim1; i++)
-	for(k=0; k<dim3; k++)
-	{
-	    temp = 0;
-	    for(j=0; j<dim2; j++)
-		temp += array1[i][offset + j] * array2[j][k];
-	    result[i][k] = temp;
-	}
-
-    return 0;
-}
-int dot2(float** array1, float** array2, float** result, int dim1, int dim2, int dim3, int offset)
-{
-    //(dim1, dim2)x(dim2, dim3)
-
-    int i, j, k;
-    float temp;
-
-    for(i=0; i<dim1; i++)
-	for(k=0; k<dim3; k++)
-	{
-	    temp = 0;
-	    for(j=0; j<dim2; j++)
-		temp += array1[i][offset + j] * array2[j][k];
-	    result[i][k] = temp;
-	}
-
-    return 0;
-}
-
-int transpose(float** array, float** result, int dim1, int dim2, int offset)
+int transpose(float** array, float** result, int dim1, int dim2)
 {
     int i, j;
     for(i=0; i<dim1; i++)
 	for(j=0; j<dim2; j++)
-	    result[j][offset + i] = array[i][j];
+	    result[j][i] = array[i][j];
 
     return 0;
 }
@@ -363,19 +325,18 @@ int feedforward(float** batch, float** z_hidden, float** output_hidden, float** 
 int backprop(float** error_out, float** batch, float** z_hidden, float** output_hidden,
 	    float** z_out, float** W2, struct params* grad, int batch_size, int n_hidden, 
 	    float** error_hidden, float** output_hidden_transposed, float** W2_transposed,
-	    float** batch_transposed, int offset)
+	    float** batch_transposed)
 {
 
 
     //grad->b1 or &(grad->b1)?  is grad->b1 passing by value, or by reference?
     sum_columns(error_out, grad->b2, n_out, batch_size);
-    //float output_hidden_t[n_hidden][batch_size];
-    transpose(output_hidden, output_hidden_transposed, batch_size, n_hidden, offset);
 
-    dot1(output_hidden_transposed, error_out, grad->W2, n_hidden, batch_size, n_out, offset);
+    transpose(output_hidden, output_hidden_transposed, batch_size, n_hidden);
+
+    dot(output_hidden_transposed, error_out, grad->W2, n_hidden, batch_size, n_out);
     
-    //float W2_t[n_out][n_hidden];
-    transpose(W2, W2_transposed, n_hidden, n_out, 0);
+    transpose(W2, W2_transposed, n_hidden, n_out);
 
     dot(error_out, W2_transposed, error_hidden, batch_size, n_out, n_hidden);
 
@@ -385,10 +346,10 @@ int backprop(float** error_out, float** batch, float** z_hidden, float** output_
     product(error_hidden, z_hidden, batch_size, n_hidden);
 
     sum_columns(error_hidden, grad->b1, n_hidden, batch_size);
-    //float batch_t[img_size][batch_size]
-    transpose(batch, batch_transposed, batch_size, img_size, offset);
 
-    dot1(batch_transposed, error_hidden, grad->W1, img_size, batch_size, n_hidden, offset);
+    transpose(batch, batch_transposed, batch_size, img_size);
+
+    dot(batch_transposed, error_hidden, grad->W1, img_size, batch_size, n_hidden);
     
     return 0;
 }
@@ -446,21 +407,7 @@ int count_correct(int* predictions, int* labels, int length)
 
     return n_correct;
 }
-/*void alloc_grad(struct params *grad, int n_workers){
-	int i;
-	for(i = 0; i < n_workers; i++){
-		g = grad[i]
-		g.W1 = malloc(img_size * sizeof(float*));
-    		for(i=0; i<img_size; i++)
-			grad_W1[i] = malloc(n_hidden * sizeof(float));
 
-    		g.W2 = malloc(n_hidden * sizeof(float*));
-    		for(i=0; i<n_hidden; i++)
-			grad_W2[i] = malloc(n_out * sizeof(float));
-		g.b1 = (float)malloc(n_hidden * sizeof(float));
-		g.b2 = (float)malloc(n_hidden * sizeof(float));
-	}
-}*/
 int test_accuracy(struct data* d, struct params* p, struct accuracy* results, 
 		float** z_hidden_train, float** output_hidden_train, float** z_out_train, 
 		float** z_hidden_test, float** output_hidden_test, float** z_out_test,  
@@ -497,8 +444,7 @@ int main(int argc, char** argv)
     strcpy(path, "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/");
 
     int n_hidden=50;
-    int n_workers = __cilkrts_get_nworkers();
-    printf("Number of workers: %d\n", n_workers);
+
     float** W1;
     float b1[n_hidden];
     float** W2;
@@ -518,7 +464,7 @@ int main(int argc, char** argv)
     
     struct params p;
     struct data d;
-    struct params grad[n_workers];
+    struct params grad;
     struct accuracy results;
     
     int batch_size=200;
@@ -550,7 +496,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
 	W2[i] = malloc(n_out * sizeof(float));
-/*
+
     grad_W1 = malloc(img_size * sizeof(float*));
     for(i=0; i<img_size; i++)
 	grad_W1[i] = malloc(n_hidden * sizeof(float));
@@ -558,7 +504,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     grad_W2 = malloc(n_hidden * sizeof(float*));
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(float));
-*/
+
     printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
@@ -581,24 +527,11 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     p.b1 = b1;
     p.b2 = b2;
 
-
-	for(i = 0; i < n_workers; i++){
-		grad[i].W1 = malloc(img_size * sizeof(float*));
-    		for(j=0; j<img_size; j++)
-			grad[i].W1[j] = malloc(n_hidden * sizeof(float));
-
-    		grad[i].W2 = malloc(n_hidden * sizeof(float*));
-    		for(j=0; j<n_hidden; j++)
-			grad[i].W2[j] = malloc(n_out * sizeof(float));
-		grad[i].b1 = malloc(n_hidden * sizeof(float));
-		grad[i].b2 = malloc(n_out * sizeof(float));
-	}
-/*	
     grad.W1 = grad_W1;
     grad.b1 = grad_b1; 
     grad.W2 = grad_W2;
     grad.b2 = grad_b2;
-  */     
+       
 
     d.train_images = train_images;
     d.train_labels = train_labels;
@@ -731,34 +664,22 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     //***** Training Starts Here ******
     printf("\nTraining network...\n");
+    
     clock_t begin = clock();
-    int k;
+
     for(i=0; i<n_epochs; i++)
     {
 	for(j=0; j<nbatches; j++)
 	{
-	    //int micro_batch_size = batch_size / n_workers;
-	    cilk_for(k=0; k < n_workers; k++){
-		int worker = __cilkrts_get_worker_number();
-		//printf("Worker number: %d\n", worker);
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
-		//int micro_batch_size = 1;
-		int micro_batch_size = batch_size / n_workers;
-		int offset = k * micro_batch_size;
-		if(offset + micro_batch_size > batch_size)
-		    micro_batch_size = batch_size - offset;
-		//float** micro_batch = &batches[j][offset];
-		//int** micro_batch_labels = &batch_labels[j][offset];
-	    	feedforward(&batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], micro_batch_size, n_hidden, &p);
+	    feedforward(batches[j], z_hidden, output_hidden, z_out, batch_size, n_hidden, &p);
 
-	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], micro_batch_size, n_out);
-	    
-	    	backprop(&error_out[offset], &batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad[k], micro_batch_size, 
-		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed, offset);
-	     }
-		for(k = 0; k < n_workers; k++)
-	   	 update_parameters(&p, &grad[k], scale, n_hidden);
-	    //transpose(p.W2, W2_transposed, n_hidden, n_out, 0);
+	    substract(z_out, batch_labels[j], error_out, batch_size, n_out);
+
+	    backprop(error_out, batches[j], z_hidden, output_hidden, z_out, p.W2, &grad, batch_size, 
+		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed);
+
+	    update_parameters(&p, &grad, scale, n_hidden);
 	}
 
 	test_accuracy(&d, &p, &results, z_hidden_train, output_hidden_train, z_out_train, 
