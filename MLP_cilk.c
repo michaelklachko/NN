@@ -496,9 +496,25 @@ int main(int argc, char** argv)
     char path[1000];
     strcpy(path, "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/");
 
-    int n_hidden=50;
+    int n_hidden; 
+    int batch_size;
+    int n_epochs;
+    float learning_rate;
+    
+    if(argc != 5)
+    {
+	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
+	return 1;
+    }
+    n_hidden = atoi(argv[1]);
+    batch_size = atoi(argv[2]);
+    learning_rate = atof(argv[3]);
+    n_epochs = atoi(argv[4]);
+    
+    float scale = learning_rate/batch_size;
+
     int n_workers = __cilkrts_get_nworkers();
-    printf("Number of workers: %d\n", n_workers);
+    //printf("Number of workers: %d\n", n_workers);
     float** W1;
     float b1[n_hidden];
     float** W2;
@@ -520,26 +536,9 @@ int main(int argc, char** argv)
     struct data d;
     struct params grad[n_workers];
     struct accuracy results;
-    
-    int batch_size=200;
-    int n_epochs=2;
-    float learning_rate=0.02;
-    
-    if(argc != 5)
-    {
-	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
-	return 1;
-    }
-    n_hidden = atoi(argv[1]);
-    batch_size = atoi(argv[2]);
-    learning_rate = atof(argv[3]);
-    n_epochs = atoi(argv[4]);
-    
-    float scale = learning_rate/batch_size;
 
-    printf("\nThis program trains a two layer fully connected neural network to recognize \
-handwritten digits (MNIST)\n\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
-Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
+    printf("\nCilk: %d threads, Network Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
+Training for %d epochs.\n\n", n_workers, n_hidden, batch_size, learning_rate, n_epochs);
 
     int i, j;
 
@@ -559,7 +558,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(float));
 */
-    printf("\nInitializing weights...\n");
+    //printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
 
@@ -605,7 +604,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     d.test_images = test_images;
     d.test_labels = test_labels;
 
-    printf("\nLoading MNIST dataset...\n");
+    //printf("\nLoading MNIST dataset...\n");
     load_mnist(&d, path);  //first arg is a pointer to struct data
 
     for(i=0; i<ntrain; i++)
@@ -730,7 +729,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
 
     //***** Training Starts Here ******
-    printf("\nTraining network...\n");
+    //printf("\nTraining network...\n");
     clock_t begin = clock();
     int k;
     for(i=0; i<n_epochs; i++)
@@ -765,7 +764,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 			z_hidden_test, output_hidden_test, z_out_test, n_hidden, i);
 
 
-	printf("\nEpoch %d: training dataset accuracy: %.2f, test dataset accuracy: %.2f", 
+	printf("Epoch %d: training dataset accuracy: %.2f, test dataset accuracy: %.2f", 
 		i, results.training[i], results.test[i]); 
 
     }
@@ -775,8 +774,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     float train_best = max(results.training, n_epochs);
     float test_best = max(results.test, n_epochs);
 
-    printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    printf("\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
+    //printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
+    printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
 
     return 0;
 }

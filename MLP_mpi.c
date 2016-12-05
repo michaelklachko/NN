@@ -477,12 +477,28 @@ int main(int argc, char** argv)
 	int rank, size;
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	printf("Size: %d, Rank: %d\n", size, rank);
+	//printf("Size: %d, Rank: %d\n", size, rank);
     //path = "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/";
     char path[1000];
     strcpy(path, "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/");
 
-    int n_hidden=50;
+    int n_hidden; 
+    int batch_size;
+    int n_epochs;
+    float learning_rate;
+
+    if(argc != 5)
+    {
+	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
+	return 1;
+    }
+
+    n_hidden = atoi(argv[1]);
+    batch_size = atoi(argv[2]);
+    learning_rate = atof(argv[3]);
+    n_epochs = atoi(argv[4]);
+    
+    float scale = learning_rate/batch_size;
 
     float** W1;
     float b1[n_hidden];
@@ -505,26 +521,10 @@ int main(int argc, char** argv)
     struct data d;
     struct params grad;
     struct accuracy results;
-    
-    int batch_size=200;
-    int n_epochs=2;
-    float learning_rate=0.02;
-    
-    if(argc != 5)
-    {
-	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
-	return 1;
-    }
-    n_hidden = atoi(argv[1]);
-    batch_size = atoi(argv[2]);
-    learning_rate = atof(argv[3]);
-    n_epochs = atoi(argv[4]);
-    
-    float scale = learning_rate/batch_size;
+
     if(rank == 0)
-    	printf("\nThis program trains a two layer fully connected neural network to recognize \
-handwritten digits (MNIST)\n\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
-Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
+    	printf("\nMPI: %d threads, Network Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
+Training for %d epochs.\n\n", size, n_hidden, batch_size, learning_rate, n_epochs);
 
     int i, j;
 
@@ -546,8 +546,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     for(i=0; i<n_hidden; i++)
 	grad_W2[i] = malloc(n_out * sizeof(float));
 */
-    if(rank == 0)
-    	printf("\nInitializing weights...\n");
+    //if(rank == 0)
+    	//printf("\nInitializing weights...\n");
 
     initialize_weights(W1, W2, b1, b2, n_hidden);
 
@@ -586,8 +586,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     d.train_labels = train_labels;
     d.test_images = test_images;
     d.test_labels = test_labels;
-    if(rank == 0)
-    	printf("\nLoading MNIST dataset...\n");
+    //if(rank == 0)
+    	//printf("\nLoading MNIST dataset...\n");
     load_mnist(&d, path);  //first arg is a pointer to struct data
 
     for(i=0; i<ntrain; i++)
@@ -712,8 +712,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
 
     //***** Training Starts Here ******
-	if(rank == 0)
-		printf("\nTraining network...\n");
+	//if(rank == 0)
+		//printf("\nTraining network...\n");
     
     clock_t begin = clock();
 
@@ -730,7 +730,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 		}
 	 */   //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
 		if(i == 0 && j == 0){
-			printf("rank: %d, micro_batch_size: %d, offset: %d\n", rank, micro_batch_size, offset);
+			//printf("rank: %d, micro_batch_size: %d, offset: %d\n", rank, micro_batch_size, offset);
 		}
 	    feedforward(micro_batch, z_hidden, output_hidden, z_out, micro_batch_size, n_hidden, &p);
 
@@ -761,8 +761,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     float train_best = max(results.training, n_epochs);
     float test_best = max(results.test, n_epochs);
     if(rank == 0){
-    	printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    	printf("\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
+    	//printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
+    	printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
     }
 	MPI_Finalize();
     return 0;

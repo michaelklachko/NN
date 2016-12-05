@@ -230,7 +230,6 @@ int dot(float** array1, float** array2, float** result, int dim1, int dim2, int 
 		temp += array1[i][j] * array2[j][k];
 	    result[i][k] = temp;
 	}
-
     return 0;
 }
 
@@ -272,6 +271,9 @@ int sum_columns(float** array, float* vec, int vec_length, int batch_size)
 
     int i, j;
 
+
+    //sum_columns(error_hidden, grad->b1, n_hidden, batch_size);
+    
     //array shape: (batch_size, vec_length): sum all elements in each column to make a vector
     //picking one value per row method:
     /*
@@ -285,7 +287,6 @@ int sum_columns(float** array, float* vec, int vec_length, int batch_size)
     for(i=1; i<batch_size; i++)
 	for(j=0; j<vec_length; j++)
 	    vec[j] += array[i][j];
-
     
     return 0;
 }
@@ -326,7 +327,6 @@ int backprop(float** error_out, float** batch, float** z_hidden, float** output_
 	    float** error_hidden, float** output_hidden_transposed, float** W2_transposed,
 	    float** batch_transposed)
 {
-
 
     //grad->b1 or &(grad->b1)?  is grad->b1 passing by value, or by reference?
     sum_columns(error_out, grad->b2, n_out, batch_size);
@@ -442,7 +442,22 @@ int main(int argc, char** argv)
     char path[1000];
     strcpy(path, "/mnt/c/Users/Michael/Desktop/Research/Data/mnist/");
 
-    int n_hidden=50;
+    int n_hidden;
+    int batch_size;
+    int n_epochs;
+    float learning_rate;
+    
+    if(argc != 5)
+    {
+	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
+	return 1;
+    }
+    n_hidden = atoi(argv[1]);
+    batch_size = atoi(argv[2]);
+    learning_rate = atof(argv[3]);
+    n_epochs = atoi(argv[4]);
+    
+    float scale = learning_rate/batch_size;
 
     float** W1;
     float b1[n_hidden];
@@ -465,22 +480,7 @@ int main(int argc, char** argv)
     struct data d;
     struct params grad;
     struct accuracy results;
-    
-    int batch_size=200;
-    int n_epochs=2;
-    float learning_rate=0.02;
-    
-    if(argc != 5)
-    {
-	printf("\n\nUsage: ./mlp [n_hidden] [batch_size] [learning_rate] [n_epochs], try ./mlp 50 200 0.2 4\n\n");
-	return 1;
-    }
-    n_hidden = atoi(argv[1]);
-    batch_size = atoi(argv[2]);
-    learning_rate = atof(argv[3]);
-    n_epochs = atoi(argv[4]);
-    
-    float scale = learning_rate/batch_size;
+
 
     printf("\nThis program trains a two layer fully connected neural network to recognize \
 handwritten digits (MNIST)\n\nNetwork Size: %d, Minibatch Size: %d, Learning Rate: %.2f, \
@@ -539,7 +539,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     printf("\nLoading MNIST dataset...\n");
     load_mnist(&d, path);  //first arg is a pointer to struct data
-
+    
     for(i=0; i<ntrain; i++)
 	onehot(train_labels[i], train_labels_onehot[i]);
 
