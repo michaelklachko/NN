@@ -1,4 +1,4 @@
-#include "cilk/cilk.h"
+#include <cilk/cilk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -223,7 +223,7 @@ int dot(float** array1, float** array2, float** result, int dim1, int dim2, int 
     int i, j, k;
     float temp;
 
-    cilk_for(i=0; i<dim1; i++)
+    cilk_for(i=0; i<dim1; i++){
 	for(k=0; k<dim3; k++)
 	{
 	    temp = 0;
@@ -231,7 +231,7 @@ int dot(float** array1, float** array2, float** result, int dim1, int dim2, int 
 		temp += array1[i][j] * array2[j][k];
 	    result[i][k] = temp;
 	}
-
+    }
     return 0;
 }
 

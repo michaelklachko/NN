@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
-
+#include "defs.h"
 #define ntrain 60000
 #define ntest 10000
 #define img_size 784
@@ -664,8 +664,8 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
     //***** Training Starts Here ******
     printf("\nTraining network...\n");
     
-    clock_t begin = clock();
-
+    //clock_t begin = clock();
+	double begin = get_seconds();
     for(i=0; i<n_epochs; i++)
     {
 	for(j=0; j<nbatches; j++)
@@ -690,13 +690,13 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 
     }
 
-    clock_t end = clock();
-
+    //clock_t end = clock();
+	double end = get_seconds();
     float train_best = max(results.training, n_epochs);
     float test_best = max(results.test, n_epochs);
 
     printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    printf("\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
+    printf("\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin));
 
     return 0;
 }

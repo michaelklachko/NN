@@ -6,6 +6,8 @@
 #include <time.h>
 #include <string.h>
 
+#include "defs.h"
+
 #define ntrain 60000
 #define ntest 10000
 #define img_size 784
@@ -730,20 +732,23 @@ Training for %d epochs.\n\n", n_workers, n_hidden, batch_size, learning_rate, n_
 
     //***** Training Starts Here ******
     //printf("\nTraining network...\n");
-    clock_t begin = clock();
+    //clock_t begin = clock();
+	double t1 = get_seconds();
     int k;
     for(i=0; i<n_epochs; i++)
     {
 	for(j=0; j<nbatches; j++)
 	{
+	    int z;
 	    //int micro_batch_size = batch_size / n_workers;
-	    cilk_for(k=0; k < n_workers; k++){
+	    cilk_for(z=0; z < batch_size; z++){
 		int worker = __cilkrts_get_worker_number();
 		//printf("Worker number: %d\n", worker);
 	    //should we pass by value, or pass by reference? for example, p.W1 vs &p.W1
 		//int micro_batch_size = 1;
 		int micro_batch_size = batch_size / n_workers;
-		int offset = k * micro_batch_size;
+		micro_batch_size = 1;
+		int offset = z * micro_batch_size;
 		if(offset + micro_batch_size > batch_size)
 		    micro_batch_size = batch_size - offset;
 		//float** micro_batch = &batches[j][offset];
@@ -752,9 +757,9 @@ Training for %d epochs.\n\n", n_workers, n_hidden, batch_size, learning_rate, n_
 
 	    	substract(&z_out[offset], &batch_labels[j][offset], &error_out[offset], micro_batch_size, n_out);
 	    
-	    	backprop(&error_out[offset], &batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad[k], micro_batch_size, 
-		    n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed, offset);
+	    	backprop(&error_out[offset], &batches[j][offset], &z_hidden[offset], &output_hidden[offset], &z_out[offset], p.W2, &grad[worker], micro_batch_size, n_hidden, &error_hidden[offset], output_hidden_transposed, W2_transposed, batch_transposed, offset);
 	     }
+		
 		for(k = 0; k < n_workers; k++)
 	   	 update_parameters(&p, &grad[k], scale, n_hidden);
 	    //transpose(p.W2, W2_transposed, n_hidden, n_out, 0);
@@ -769,13 +774,13 @@ Training for %d epochs.\n\n", n_workers, n_hidden, batch_size, learning_rate, n_
 
     }
 
-    clock_t end = clock();
-
+    //clock_t end = clock();
+	double t2 = get_seconds();
     float train_best = max(results.training, n_epochs);
     float test_best = max(results.test, n_epochs);
 
     //printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
-
+    //printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
+	printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(t2-t1));
     return 0;
 }

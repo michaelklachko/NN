@@ -4,7 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
-
+#include "defs.h"
 #define ntrain 60000
 #define ntest 10000
 #define img_size 784
@@ -715,8 +715,8 @@ Training for %d epochs.\n\n", size, n_hidden, batch_size, learning_rate, n_epoch
 	//if(rank == 0)
 		//printf("\nTraining network...\n");
     
-    clock_t begin = clock();
-
+    //clock_t begin = clock();
+	double t1 = get_seconds();
     for(i=0; i<n_epochs; i++)
     {
 	for(j=0; j<nbatches; j++)
@@ -756,13 +756,13 @@ Training for %d epochs.\n\n", size, n_hidden, batch_size, learning_rate, n_epoch
 
     }
 
-    clock_t end = clock();
-
+    //clock_t end = clock();
+	double t2 = get_seconds();
     float train_best = max(results.training, n_epochs);
     float test_best = max(results.test, n_epochs);
     if(rank == 0){
     	//printf("\n\nBest Accuracy: %.2f (training dataset), %.2f (test dataset)\n\n", train_best, test_best);
-    	printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(end - begin)/CLOCKS_PER_SEC);
+    	printf("\n\n---- Program ran for %.1f seconds ----\n\n", (float)(t2 - t1));
     }
 	MPI_Finalize();
     return 0;
