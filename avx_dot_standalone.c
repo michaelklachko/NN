@@ -16,6 +16,26 @@ int print_array(float* a, int n)
     return 0;
 }
 
+float fma_dot(float*a, float* b, int n)
+{
+    __m256 vec_a, vec_b, vec_c;
+    int i;
+
+    vec_c = _mm256_setzero_ps();
+
+    for(i=0; i<n; i+=8)
+    {
+	vec_a = _mm256_loadu_ps(&a[i]);
+	vec_b = _mm256_loadu_ps(&b[i]);
+	vec_c = _mm256_fmadd_ps(vec_a, vec_b, vec_c);
+    }
+
+    vec_c = _mm256_hadd_ps(vec_c, vec_c);
+    vec_c = _mm256_hadd_ps(vec_c, vec_c);
+    
+    return ((float*)&vec_c)[0] + ((float*)&vec_c)[4]; 
+}
+
 
 int mult_avx(float* a, float* b, float* m, int n)
 {
@@ -80,6 +100,7 @@ int main()
     int i;
     float result=0;
     float result_test=0;
+    float fma_result=0;
 
     float* a = malloc(N * sizeof(float));
     float* b = malloc(N * sizeof(float));
@@ -99,6 +120,9 @@ int main()
     mult_avx(a, b, m, N);
 
     result = hadd(m, N);
+
+    fma_result = fma_dot(a, b, N);
+
     print_array(a, N);
     printf("\n");
     print_array(b, N);
@@ -107,6 +131,7 @@ int main()
     printf("\n");
     printf("\n\nshould be: %.1f", result_test);
     printf("\nresult:  %.1f", result);
+    printf("\nfma result:  %.1f", fma_result);
     printf("\n\n");
 
     return 0;
