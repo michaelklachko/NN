@@ -276,7 +276,7 @@ float hadd(float* a, int n)
 }
 
 
-float avx_dot(float* a, float* b, float* m, int N)
+float avx_dot1(float* a, float* b, float* m, int N)
 {
     int i;
     float result=0;
@@ -295,6 +295,37 @@ float avx_dot(float* a, float* b, float* m, int N)
 
     return result;
 }
+
+
+
+float avx_dot(float*a, float* b, int n)
+{
+    __m256 vec_a, vec_b, vec_c;
+    int i;
+    printf("\n111\n");
+    vec_c = _mm256_setzero_ps();
+
+    printf("\n112\nn: %d\n", n);
+    for(i=0; i<n; i+=8)
+    {
+	printf("i: %d, ", i);
+        vec_a = _mm256_loadu_ps(&a[i]);
+	printf("vec_a loaded, ");
+        vec_b = _mm256_loadu_ps(&b[i]);
+	printf("vec_b loaded, ");
+        vec_c = _mm256_fmadd_ps(vec_a, vec_b, vec_c);
+	printf("vec_c updated.\n");
+    }
+
+    printf("\n113\n");
+    vec_c = _mm256_hadd_ps(vec_c, vec_c);
+    printf("\n114\n");
+    vec_c = _mm256_hadd_ps(vec_c, vec_c);
+
+    return ((float*)&vec_c)[0] + ((float*)&vec_c)[4];
+}
+
+
 
 
 float **alloc_2d_float(int rows, int cols){
@@ -385,6 +416,14 @@ int dot1(float** array1, float** array2, float** result, int dim1, int dim2, int
 	}
     else    //(transposed == 0, 1, 2)
     {
+	
+	printf("\ndim1: %d, dim2: %d, dim3: %d\n\n", dim1, dim2, dim3);
+	for(i=0; i<dim1; i++)
+	    for(k=0; k<dim3; k++)  
+		result[i][k] = avx_dot(array1[i], array2[k], dim2);
+	 
+	
+	/*
 	if(dim2 == 10)
 	{
 	    float* temp_vec1 = calloc(16, sizeof(float)); //for avx_dot intermediate result
@@ -399,7 +438,7 @@ int dot1(float** array1, float** array2, float** result, int dim1, int dim2, int
 			a16[j] = array1[i][j];
 			b16[j] = array2[k][j];
 		    }
-		    result[i][k] = avx_dot(a16, b16, temp_vec1, 16);
+		    result[i][k] = avx_dot1(a16, b16, temp_vec1, 16);
 		}
 
 	    free(temp_vec1);
@@ -412,10 +451,11 @@ int dot1(float** array1, float** array2, float** result, int dim1, int dim2, int
 
 	    for(i=0; i<dim1; i++)
 		for(k=0; k<dim3; k++)
-		    result[i][k] = avx_dot(array1[i], array2[k], temp_vec2, dim2);
+		    result[i][k] = avx_dot1(array1[i], array2[k], temp_vec2, dim2);
 	    
 	    free(temp_vec2);
 	}
+	*/
 
     }
     return 0;
@@ -521,7 +561,7 @@ int feedforward(float** batch, float** z_hidden, float** output_hidden, float** 
 
 int backprop(float** error_out, float** batch, float** z_hidden, float** output_hidden,
 	    float** W2, struct params* grad, int batch_size, int n_hidden, 
-	    float** error_hidden, float** output_hidden_transposed, float** W2_transposed,
+	    float** error_hidden, float** output_hidden_transposed,
 	    float** batch_transposed, float** error_hidden_transposed, float** error_out_transposed)
 {
 
@@ -907,7 +947,7 @@ Training for %d epochs.\n\n", n_hidden, batch_size, learning_rate, n_epochs);
 	    //printf("\n2\n");
 	    
 	    backprop(error_out, batches[j], z_hidden, output_hidden, p.W2, &grad, batch_size, 
-		    n_hidden, error_hidden, output_hidden_transposed, W2_transposed, batch_transposed,
+		    n_hidden, error_hidden, output_hidden_transposed, batch_transposed,
 		    error_hidden_transposed, error_out_transposed);
 
 	    //printf("\n3\n");
