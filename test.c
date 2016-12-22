@@ -6,24 +6,25 @@
 
 float** alloc_2d_float(int rows, int cols, int contiguous)
 {
-        int i;
-        float **array = (float **)malloc(rows * sizeof(float*));
+    int i;
+    float **array = (float **)malloc(rows * sizeof(float*));
 
-	if(!contiguous)
-	    for(i=0; i<rows; i++)
-	    {
-		array[i] = malloc(cols * sizeof(float));
-		assert(array[i] && "Can't allocate memory for labels");
-	    }
-	else
+    if(contiguous)
+    {
+	float *data = (float *)malloc(rows*cols*sizeof(float));
+	assert(data && "Can't allocate contiguous memory");
+
+	for(i=0; i<rows; i++)
+            array[i] = &(data[cols * i]);
+    }
+    else
+	for(i=0; i<rows; i++)
 	{
-	    float *data = (float *)malloc(rows*cols*sizeof(float));
-	    assert(data && "Can't allocate contiguous memory");
+	    array[i] = malloc(cols * sizeof(float));
+	    assert(array[i] && "Can't allocate memory");
+	}
 
-	    for(i=0; i<rows; i++)
-                array[i] = &(data[cols * i]);
-        }
-	return array;
+    return array;
 }
 
 
