@@ -4,12 +4,12 @@
 #include <assert.h>
 
 
-float** alloc_2d_float(int rows, int cols, int contigious)
+float** alloc_2d_float(int rows, int cols, int contiguous)
 {
         int i;
         float **array = (float **)malloc(rows * sizeof(float*));
 
-	if(!contigious)
+	if(!contiguous)
 	    for(i=0; i<rows; i++)
 	    {
 		array[i] = malloc(cols * sizeof(float));
@@ -18,7 +18,7 @@ float** alloc_2d_float(int rows, int cols, int contigious)
 	else
 	{
 	    float *data = (float *)malloc(rows*cols*sizeof(float));
-	    assert(data && "Can't allocate contigious memory");
+	    assert(data && "Can't allocate contiguous memory");
 
 	    for(i=0; i<rows; i++)
                 array[i] = &(data[cols * i]);
@@ -63,12 +63,12 @@ int main(int argc, char** argv)
 {
     if(argc != 4)
     {
-	printf("\n\nUsage: ./test [array size] [n_iters] [contigious memory allocation], try ./test 100 4 0\n\n");
+	printf("\n\nUsage: ./test [array size] [n_iters] [contiguous memory allocation], try ./test 100 4 0\n\n");
 	return 1;
     }
     int dim3 = atoi(argv[1]);
     int n_iters = atoi(argv[2]);
-    int contigious = atoi(argv[3]);
+    int contiguous = atoi(argv[3]);
    
     int dim1 = 100000;
     int dim2 = 1000;
@@ -77,16 +77,16 @@ int main(int argc, char** argv)
 
     printf("\n\nMultiplying (%d, %d) and (%d, %d) arrays %d times, ", dim1, dim2, dim3, dim2, n_iters);
 
-    if(contigious)
-	printf("contigious memory allocation.\n\n");
+    if(contiguous)
+	printf("contiguous memory allocation.\n\n");
     else
-	printf("noncontigious memory allocation.\n\n");
+	printf("noncontiguous memory allocation.\n\n");
 
     clock_t begin1 = clock();
 
-    float** array1 = alloc_2d_float(dim1, dim2, contigious);
-    float** array2 = alloc_2d_float(dim3, dim2, contigious);
-    float** result = alloc_2d_float(dim1, dim3, contigious);
+    float** array1 = alloc_2d_float(dim1, dim2, contiguous);
+    float** array2 = alloc_2d_float(dim3, dim2, contiguous);
+    float** result = alloc_2d_float(dim1, dim3, contiguous);
 
     clock_t end1 = clock();
     printf("\nInitializing arrays...\n");
