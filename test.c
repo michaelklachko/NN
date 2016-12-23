@@ -7,11 +7,11 @@
 float** alloc_2d_float(int rows, int cols, int contiguous)
 {
     int i;
-    float **array = (float **)malloc(rows * sizeof(float*));
+    float** array = malloc(rows * sizeof(float*));
 
     if(contiguous)
     {
-	float *data = (float *)malloc(rows*cols*sizeof(float));
+	float* data = malloc(rows*cols*sizeof(float));
 	assert(data && "Can't allocate contiguous memory");
 
 	for(i=0; i<rows; i++)
