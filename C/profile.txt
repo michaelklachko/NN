@@ -1,0 +1,559 @@
+Reading Profile files in profile.*
+
+NODE 0;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          274       25,694           1       61260   25694196 int main(int, char **) C 
+ 64.6       16,599       16,599        1254           0      13237 int dot(float **, float **, float **, int, int, int) C 
+ 63.0        0.235       16,178         252        1260      64199 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.7        0.013       15,076           1           6   15076686 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,475        6,475           1           0    6475152 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128698 MPI_Init() 
+  3.4        0.434          875         250        2500       3503 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.4          617          617         250           0       2468 MPI_Allreduce() 
+  1.5          364          376         252      100001       1494 int ReLU_vec(float **, float **, int, int) C 
+  0.4           90           90           1           0      90437 MPI_Finalize() 
+  0.2           34           46         250      100001        187 int ReLU_prime_vec(float **, int, int) C 
+  0.2           43           43         250           0        176 int update_parameters(struct params *, struct params *, float, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           12           12      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1963 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.594        0.594           2           0        297 int argmax(float **, int *, int, int) C 
+  0.0        0.168        0.168         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.033        0.033           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_size() 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 0, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 1;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          280       25,694           1       61260   25694155 int main(int, char **) C 
+ 64.6       16,607       16,607        1254           0      13244 int dot(float **, float **, float **, int, int, int) C 
+ 63.0        0.221       16,184         252        1260      64225 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.7        0.012       15,083           1           6   15083052 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,473        6,473           1           0    6473848 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128616 MPI_Init() 
+  3.4        0.389          874         250        2500       3497 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.3          603          603         250           0       2413 MPI_Allreduce() 
+  1.5          361          373         252      100001       1482 int ReLU_vec(float **, float **, int, int) C 
+  0.3           84           84           1           0      84088 MPI_Finalize() 
+  0.2           54           54         250           0        218 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        186 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           12           12      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1908 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0         0.59         0.59           2           0        295 int argmax(float **, int *, int, int) C 
+  0.0        0.176        0.176         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.032        0.032           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+  0.0            0            0           2           0          0 float max(float *, int) C 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 1, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 2;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          259       25,694           1       61260   25694130 int main(int, char **) C 
+ 64.5       16,585       16,585        1254           0      13226 int dot(float **, float **, float **, int, int, int) C 
+ 62.9        0.213       16,162         252        1260      64136 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.6        0.013       15,061           1           6   15061889 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,480        6,480           1           0    6480522 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128634 MPI_Init() 
+  3.4        0.368          874         250        2500       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.5          629          629         250           0       2519 MPI_Allreduce() 
+  1.5          361          373         252      100001       1481 int ReLU_vec(float **, float **, int, int) C 
+  0.4          105          105           1           0     105237 MPI_Finalize() 
+  0.2           34           46         250      100001        185 int ReLU_prime_vec(float **, int, int) C 
+  0.2           43           43         250           0        175 int update_parameters(struct params *, struct params *, float, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           12           12      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1929 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.606        0.606           2           0        303 int argmax(float **, int *, int, int) C 
+  0.0        0.166        0.166         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.033        0.033           2           0         16 int count_correct(int *, int *, int) C 
+  0.0        0.012        0.012           1           0         12 int alloc_grad(struct params *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+  0.0            0            0           2           0          0 float max(float *, int) C 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 2, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 3;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          257       25,694           1       61260   25694169 int main(int, char **) C 
+ 64.5       16,575       16,575        1254           0      13218 int dot(float **, float **, float **, int, int, int) C 
+ 62.9        0.237       16,152         252        1260      64098 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.6        0.011       15,053           1           6   15053663 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,481        6,481           1           0    6481936 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128693 MPI_Init() 
+  3.4        0.415          873         250        2500       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.4          620          620         250           0       2481 MPI_Allreduce() 
+  1.5          361          373         252      100001       1481 int ReLU_vec(float **, float **, int, int) C 
+  0.4          113          113           1           0     113382 MPI_Finalize() 
+  0.2           55           55         250           0        223 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        185 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1908 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.607        0.607           2           0        304 int argmax(float **, int *, int, int) C 
+  0.0        0.175        0.175         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.032        0.032           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_rank() 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 3, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 4;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          259       25,694           1       61260   25694196 int main(int, char **) C 
+ 64.5       16,572       16,572        1254           0      13216 int dot(float **, float **, float **, int, int, int) C 
+ 62.9        0.258       16,149         252        1260      64084 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.6        0.015       15,049           1           6   15049825 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,480        6,480           1           0    6480786 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128693 MPI_Init() 
+  3.4        0.398          874         250        2500       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.5          630          630         250           0       2523 MPI_Allreduce() 
+  1.5          360          372         252      100001       1480 int ReLU_vec(float **, float **, int, int) C 
+  0.5          117          117           1           0     117296 MPI_Finalize() 
+  0.2           34           46         250      100001        185 int ReLU_prime_vec(float **, int, int) C 
+  0.2           43           43         250           0        175 int update_parameters(struct params *, struct params *, float, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1909 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.601        0.601           2           0        300 int argmax(float **, int *, int, int) C 
+  0.0        0.154        0.154         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.032        0.032           2           0         16 int count_correct(int *, int *, int) C 
+  0.0        0.011        0.011           1           0         11 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_rank() 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 4, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 5;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          283       25,694           1       61260   25694154 int main(int, char **) C 
+ 64.6       16,593       16,593        1254           0      13232 int dot(float **, float **, float **, int, int, int) C 
+ 62.9        0.255       16,170         252        1260      64168 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.7        0.011       15,069           1           6   15069956 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,472        6,472           1           0    6472277 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128592 MPI_Init() 
+  3.4        0.415          874         250        2500       3497 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.3          603          603         250           0       2412 MPI_Allreduce() 
+  1.5          361          373         252      100001       1480 int ReLU_vec(float **, float **, int, int) C 
+  0.4           97           97           1           0      97168 MPI_Finalize() 
+  0.2           55           55         250           0        222 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        185 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1909 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.595        0.595           2           0        298 int argmax(float **, int *, int, int) C 
+  0.0        0.154        0.154         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.031        0.031           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_size() 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 5, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 6;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          259       25,694           1       61260   25694146 int main(int, char **) C 
+ 65.0       16,693       16,693        1254           0      13312 int dot(float **, float **, float **, int, int, int) C 
+ 63.3         0.23       16,269         252        1260      64561 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 59.0        0.016       15,162           1           6   15162228 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,481        6,481           1           0    6481019 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128622 MPI_Init() 
+  3.4         0.38          874         250        2500       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.4          622          622         250           0       2490 MPI_Allreduce() 
+  1.4          360          372         252      100001       1478 int ReLU_vec(float **, float **, int, int) C 
+  0.2           34           46         250      100001        185 int ReLU_prime_vec(float **, int, int) C 
+  0.2           43           43         250           0        175 int update_parameters(struct params *, struct params *, float, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            4            4           1           0       4912 MPI_Finalize() 
+  0.0            1            1           1           0       1928 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.598        0.598           2           0        299 int argmax(float **, int *, int, int) C 
+  0.0        0.169        0.169         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.031        0.031           2           0         16 int count_correct(int *, int *, int) C 
+  0.0        0.011        0.011           1           0         11 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 6, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 7;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          256       25,694           1       61260   25694156 int main(int, char **) C 
+ 64.6       16,585       16,585        1254           0      13226 int dot(float **, float **, float **, int, int, int) C 
+ 62.9        0.245       16,162         252        1260      64139 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.6        0.011       15,062           1           6   15062819 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,482        6,482           1           0    6482162 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128687 MPI_Init() 
+  3.4        0.403          873         250        2500       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.4          619          619         250           0       2480 MPI_Allreduce() 
+  1.5          361          373         252      100001       1481 int ReLU_vec(float **, float **, int, int) C 
+  0.4          104          104           1           0     104217 MPI_Finalize() 
+  0.2           56           56         250           0        224 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        186 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1909 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.597        0.597           2           0        298 int argmax(float **, int *, int, int) C 
+  0.0        0.166        0.166         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.032        0.032           2           0         16 int count_correct(int *, int *, int) C 
+  0.0        0.013        0.013           1           0         13 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 7, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 8;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          253       25,694           1       61260   25694199 int main(int, char **) C 
+ 64.2       16,504       16,504        1254           0      13161 int dot(float **, float **, float **, int, int, int) C 
+ 62.6        0.222       16,081         252        1260      63815 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.3        0.018       14,986           1           6   14986585 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 26.7        6,862        6,862           1           0    6862899 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128704 MPI_Init() 
+  3.4        0.389          873         250        2500       3495 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  1.5          360          372         252      100001       1480 int ReLU_vec(float **, float **, int, int) C 
+  1.0          248          248         250           0        995 MPI_Allreduce() 
+  0.7          180          180           1           0     180681 MPI_Finalize() 
+  0.2           54           54         250           0        220 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        186 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1955 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.596        0.596           2           0        298 int argmax(float **, int *, int, int) C 
+  0.0        0.173        0.173         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.031        0.031           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_rank() 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_size() 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 8, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 9;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          260       25,694           1       61260   25694149 int main(int, char **) C 
+ 64.3       16,521       16,521        1254           0      13175 int dot(float **, float **, float **, int, int, int) C 
+ 62.7        0.239       16,098         252        1260      63881 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.4        0.016       15,003           1           6   15003145 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,479        6,479           1           0    6479665 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128689 MPI_Init() 
+  3.4        0.387          873         250        2500       3495 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.5          633          633         250           0       2535 MPI_Allreduce() 
+  1.5          360          372         252      100001       1479 int ReLU_vec(float **, float **, int, int) C 
+  0.6          164          164           1           0     164105 MPI_Finalize() 
+  0.2           34           46         250      100001        186 int ReLU_prime_vec(float **, int, int) C 
+  0.2           44           44         250           0        178 int update_parameters(struct params *, struct params *, float, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            2            2           1           0       2917 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.669        0.669           2           0        334 int argmax(float **, int *, int, int) C 
+  0.0        0.174        0.174         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.032        0.032           2           0         16 int count_correct(int *, int *, int) C 
+  0.0        0.014        0.014           1           0         14 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           1           0          1 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+  0.0            0            0           2           0          0 float max(float *, int) C 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 9, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 10;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          273       25,694           1       61260   25694164 int main(int, char **) C 
+ 64.2       16,508       16,508        1254           0      13164 int dot(float **, float **, float **, int, int, int) C 
+ 62.6        0.221       16,084         252        1260      63829 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.3        0.013       14,990           1           6   14990449 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,476        6,476           1           0    6476555 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128620 MPI_Init() 
+  3.4        0.391          873         250        2500       3495 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.4          614          614         250           0       2460 MPI_Allreduce() 
+  1.5          360          372         252      100001       1479 int ReLU_vec(float **, float **, int, int) C 
+  0.7          176          176           1           0     176860 MPI_Finalize() 
+  0.2           54           54         250           0        219 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        185 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           11           11      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1924 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.602        0.602           2           0        301 int argmax(float **, int *, int, int) C 
+  0.0         0.16         0.16         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.031        0.031           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 10, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+NODE 11;CONTEXT 0;THREAD 0:
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          255       25,694           1       61260   25694149 int main(int, char **) C 
+ 64.2       16,492       16,492        1254           0      13152 int dot(float **, float **, float **, int, int, int) C 
+ 62.5        0.251       16,069         252        1260      63766 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.3        0.015       14,975           1           6   14975122 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.2        6,482        6,482           1           0    6482217 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128686 MPI_Init() 
+  3.4        0.398          873         250        2500       3495 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.5          637          637         250           0       2552 MPI_Allreduce() 
+  1.5          360          373         252      100001       1480 int ReLU_vec(float **, float **, int, int) C 
+  0.7          192          192           1           0     192126 MPI_Finalize() 
+  0.2           34           46         250      100001        186 int ReLU_prime_vec(float **, int, int) C 
+  0.2           44           44         250           0        178 int update_parameters(struct params *, struct params *, float, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           12           12      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            1            1           1           0       1920 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.603        0.603           2           0        302 int argmax(float **, int *, int, int) C 
+  0.0        0.165        0.165         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.032        0.032           2           0         16 int count_correct(int *, int *, int) C 
+  0.0         0.01         0.01           1           0         10 int alloc_grad(struct params *, int) C 
+  0.0        0.001        0.001           2           0          0 float max(float *, int) C 
+  0.0            0            0           1           0          0 MPI_Comm_rank() 
+  0.0            0            0           1           0          0 MPI_Comm_size() 
+---------------------------------------------------------------------------------------
+
+USER EVENTS Profile :NODE 11, CONTEXT 0, THREAD 0
+---------------------------------------------------------------------------------------
+NumSamples   MaxValue   MinValue  MeanValue  Std. Dev.  Event Name
+---------------------------------------------------------------------------------------
+       250  8.141E+05  8.141E+05  8.141E+05          0  Message size for all-reduce
+---------------------------------------------------------------------------------------
+
+FUNCTION SUMMARY (total):
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0        3,174     5:08.329          12      735120   25694164 int main(int, char **) C 
+ 64.5     3:18.839     3:18.839       15048           0      13214 int dot(float **, float **, float **, int, int, int) C 
+ 62.8            2     3:13.762        3024       15120      64075 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.6        0.164     3:00.575          12          72   15047952 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.3     1:18.129     1:18.129          12           0    6510753 int load_mnist(struct data *, char *) C 
+  4.4       13,543       13,543          12           0    1128661 MPI_Init() 
+  3.4            4       10,489        3000       30000       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.3        7,082        7,082        3000           0       2361 MPI_Allreduce() 
+  1.5        4,333        4,479        3024 1.20001E+06       1481 int ReLU_vec(float **, float **, int, int) C 
+  0.5        1,430        1,430          12           0     119209 MPI_Finalize() 
+  0.2          595          595        3000           0        199 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2          412          557        3000 1.20001E+06        186 int ReLU_prime_vec(float **, int, int) C 
+  0.1          194          194        6048           0         32 int add_vec(float **, float *, int, int) C 
+  0.0          146          146        9000           0         16 int transpose(float **, float **, int, int) C 
+  0.0          145          145 1.20001E+06           0          0 float ReLU(float) C [THROTTLED]
+  0.0          144          144 1.20001E+06           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0           88           88      720000           0          0 int onehot(int, int *) C 
+  0.0           24           24          12           0       2007 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0           14           14        3000           0          5 int product(float **, float **, int, int) C 
+  0.0           12           12        6000           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0            7            7          24           0        302 int argmax(float **, int *, int, int) C 
+  0.0            2            2        3000           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0        0.382        0.382          24           0         16 int count_correct(int *, int *, int) C 
+  0.0        0.131        0.131          12           0         11 int alloc_grad(struct params *, int) C 
+  0.0        0.009        0.009          24           0          0 float max(float *, int) C 
+  0.0        0.004        0.004          12           0          0 MPI_Comm_rank() 
+  0.0        0.003        0.003          12           0          0 MPI_Comm_size() 
+
+FUNCTION SUMMARY (mean):
+---------------------------------------------------------------------------------------
+%Time    Exclusive    Inclusive       #Call      #Subrs  Inclusive Name
+              msec   total msec                          usec/call 
+---------------------------------------------------------------------------------------
+100.0          264       25,694           1       61260   25694164 int main(int, char **) C 
+ 64.5       16,569       16,569        1254           0      13214 int dot(float **, float **, float **, int, int, int) C 
+ 62.8        0.236       16,146         252        1260      64075 int feedforward(float **, float **, float **, float **, int, int, struct params *) C 
+ 58.6       0.0137       15,047           1           6   15047952 int test_accuracy(struct data *, struct params *, struct accuracy *, float **, float **, float **, float **, float **, float **, int, int) C 
+ 25.3        6,510        6,510           1           0    6510753 int load_mnist(struct data *, char *) C 
+  4.4        1,128        1,128           1           0    1128661 MPI_Init() 
+  3.4        0.397          874         250        2500       3496 int backprop(float **, float **, float **, float **, float **, float **, struct params *, int, int, float **, float **, float **, float **) C 
+  2.3          590          590         250           0       2361 MPI_Allreduce() 
+  1.5          361          373         252      100001       1481 int ReLU_vec(float **, float **, int, int) C 
+  0.5          119          119           1           0     119209 MPI_Finalize() 
+  0.2           49           49         250           0        199 int update_parameters(struct params *, struct params *, float, int) C 
+  0.2           34           46         250      100001        186 int ReLU_prime_vec(float **, int, int) C 
+  0.1           16           16         504           0         32 int add_vec(float **, float *, int, int) C 
+  0.0           12           12         750           0         16 int transpose(float **, float **, int, int) C 
+  0.0           12           12      100001           0          0 float ReLU(float) C [THROTTLED]
+  0.0           12           12      100001           0          0 float ReLU_prime(float) C [THROTTLED]
+  0.0            7            7       60000           0          0 int onehot(int, int *) C 
+  0.0            2            2           1           0       2007 int initialize_weights(float **, float **, float *, float *, int) C 
+  0.0            1            1         250           0          5 int product(float **, float **, int, int) C 
+  0.0            1            1         500           0          2 int sum_columns(float **, float *, int, int) C 
+  0.0        0.605        0.605           2           0        302 int argmax(float **, int *, int, int) C 
+  0.0        0.167        0.167         250           0          1 int substract(float **, int **, float **, int, int) C 
+  0.0       0.0318       0.0318           2           0         16 int count_correct(int *, int *, int) C 
+  0.0       0.0109       0.0109           1           0         11 int alloc_grad(struct params *, int) C 
+  0.0      0.00075      0.00075           2           0          0 float max(float *, int) C 
+  0.0     0.000333     0.000333           1           0          0 MPI_Comm_rank() 
+  0.0      0.00025      0.00025           1           0          0 MPI_Comm_size() 
