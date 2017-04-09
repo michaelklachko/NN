@@ -64,22 +64,21 @@ def feedforward(inpt, weights, biases, fs):
     output = ReLU_vec(z_pooled)
     output = output.reshape(output.shape[0], -1).transpose()  #output.shape=(n_pool, num_images) 
     
-    z = np.dot(weights[1], output) + biases[1]
+    z = np.dot(weights[1], output) + biases[1]    #(n_hidden, n_pool)x(n_pool, num_images) = (n_hidden, num_images)
     a = ReLU_vec(z)
     
-    z = np.dot(weights[2], a) + biases[2] 
+    z = np.dot(weights[2], a) + biases[2]      #(n_out, n_hidden)x(n_hidden, num_images) = (n_out, num_images)
     return z   
     
 def predict(image, weights, biases, fs):
     """returns the position of the highest output"""
-    return np.argmax(feedforward(image, weights, biases, fs))
-    
-def accuracy(data, weights, biases, fs):
-    """counts number of correctly predicted labels, converts onehot encoded vectors to scalars"""   
-    results = [(predict(image, weights, biases, fs), label) for (image, label) in data]
-    n_correct = np.sum((x == y) for (x, y) in results)
-    return 100*n_correct/float(len(data))
+    return np.argmax(feedforward(image, weights, biases, fs), axis=0)   #argmax((n_out, num_images), axis=0) = (num_images,)
 
+def accuracy((images, labels), weights, biases, fs):
+    """counts number of correctly predicted labels"""   
+    results = predict(images, weights, biases, fs)
+    n_correct = np.sum(results == labels)
+    return 100*n_correct/float(len(labels))
 
 def conv_layer(minibatch, weights, biases, fs):
     
@@ -160,7 +159,7 @@ def train(dataset, layers, fs, pool_stride, epochs, LR, minibatch_size, check_gr
     n_pool = fms_out*img_pool*img_pool #number of outputs from pooling layer (4*12*12=576)
     
     
-    w_conv = np.random.randn(fms_out, patch_size)*np.sqrt(init_conv*2.0/patch_size)  #each fm_out has its own receptive field weights (colors*fs*fs)
+    w_conv = np.random.randn(fms_out, patch_size)*np.sqrt(2.0/patch_size)  #each fm_out has its own receptive field weights (colors*fs*fs)
     b_conv = np.random.randn(fms_out,1)  #one bias per feature map
     w_hidden = np.random.randn(n_hidden, n_pool)*np.sqrt(2.0/n_pool)
     b_hidden = np.random.randn(n_hidden, 1) #+1 
@@ -177,8 +176,10 @@ def train(dataset, layers, fs, pool_stride, epochs, LR, minibatch_size, check_gr
     b_out = b_out.reshape(n_out, 1)
     
     #weights = [w_conv, w_hidden, w_out]
-    #biases = [b_conv, b_hidden, b_out]  
-        
+    #biases = [b_conv, b_hidden, b_out] 
+    
+    start_training = time.time() 
+    
     for epoch in range(epochs):
         start_epoch = time.time()
              
@@ -238,6 +239,7 @@ def train(dataset, layers, fs, pool_stride, epochs, LR, minibatch_size, check_gr
             if check_gradient:                  
                 print "\n******************   Checking gradient   ***********************\n"
                 grad_check(x, y, fs, [w_conv, w_hidden, w_out], [b_conv, b_hidden, b_out], grad_w, grad_b, minibatch_size)
+                return
             
             w_conv, w_hidden, w_out = [w-(LR/minibatch_size)*dw for w, dw in zip([w_conv, w_hidden, w_out], grad_w)]                   
             b_conv, b_hidden, b_out = [b-(LR/minibatch_size)*db for b, db in zip([b_conv, b_hidden, b_out], grad_b)]   
@@ -246,39 +248,53 @@ def train(dataset, layers, fs, pool_stride, epochs, LR, minibatch_size, check_gr
         epoch_train_time = (end_epoch - start_epoch)/60.
         
         start_test_accuracy = time.time()
-        test_accuracy = accuracy(test_data, [w_conv, w_hidden, w_out], [b_conv, b_hidden, b_out], fs)
+        best_accuracy = 0
+        test_accuracy = accuracy((test_images, test_labels), [w_conv, w_hidden, w_out], [b_conv, b_hidden, b_out], fs)
+        
+        if test_accuracy < 12:
+            print "\nBad initialization, let's try again...\n"
+            return
         end_test_accuracy = time.time()
         test_time_test = (end_test_accuracy - start_test_accuracy)/60.
         
+        if test_accuracy > best_accuracy:
+            best_accuracy = test_accuracy
+            
         train_accuracy = 0
         test_time_train = 0
-        if check_train_accuracy and epoch % 10 == 0:
+        if check_train_accuracy and epoch % 10 == 0 and epoch != 0:
             start_train_accuracy = time.time()     
-            train_accuracy = accuracy(training_data, [w_conv, w_hidden, w_out], [b_conv, b_hidden, b_out], fs)
+            #train_accuracy = accuracy(training_data, [w_conv, w_hidden, w_out], [b_conv, b_hidden, b_out], fs)
+            train_accuracy = accuracy((training_images, training_labels), [w_conv, w_hidden, w_out], [b_conv, b_hidden, b_out], fs)
             end_train_accuracy = time.time()
             test_time_train = (end_train_accuracy - start_train_accuracy)/60.
+        
+        if epoch % 30 == 0:
+            LR = LR/10.
             
-        print "Epoch {:d}: train: {:.2f}, test: {:.2f}".format(epoch, train_accuracy, test_accuracy)  
-        #print "Epoch took {:.2f} min, test dataset: {:.2f} min, train dataset: {:.2f} min".format(epoch_time, test_time, train_time)
+        print "Epoch {:d}: train: {:.2f}, test: {:.2f}".format(epoch, train_accuracy, test_accuracy)
+        #epoch_time = epoch_train_time + test_time_test + test_time_train
+        #print "\nEpoch took {:.2f} min: \ntraining: {:.2f} min \ntesting accuracy on test dataset: {:.2f} min \ntesting accuracy on train dataset: {:.2f} min\n".format(epoch_time, epoch_train_time, test_time_test, test_time_train)
+    end_training = time.time()
     epoch_time = epoch_train_time + test_time_test + test_time_train
-    print "Each epoch took {:.2f} min: \ntraining: {:.2f} min \ntesting accuracy on test dataset: {:.2f} min \ntesting accuracy on train dataset: {:.2f} min".format(epoch_time, epoch_train_time, test_time_test, test_time_train)
- 
-np.set_printoptions(threshold=1000, precision=2, linewidth=260, suppress=True) 
+    total_time = (end_training - start_training)/60.
+    print "\nEpoch took {:.2f} min: \ntraining: {:.2f} min \ntesting accuracy on test dataset: {:.2f} min \ntesting accuracy on train dataset: {:.2f} min\n".format(epoch_time, epoch_train_time, test_time_test, test_time_train)
+    print "\nBest Test Accuracy: {:.2f}\n".format(best_accuracy)
+    print "\nTotal training time: {:.2f} min\n\n".format(total_time)
 
 LR = 0.01
-epochs = 40
-minibatch_size = 64
-layers = [3, 28, 10]   #fm, n_hidden, n_out    
+epochs = 21   
+minibatch_size = 16
+layers = [8, 128, 10]   #fm, n_hidden, n_out    
 fs=5
 pool_stride=2
 colors = 1
 img_in = 28
-init_conv = 0.3
-check_train_accuracy = False
+check_train_accuracy = True
 check_gradient = False
 
-print "\n**** This program will train a two layer conv. neural net to classify MNIST images ****\n\n"
-print "Network Size: {}\nLearning Rate: {:.2f}\nMinibatch size: {:d}\ninit_conv: {:.2f}\n".format(layers, LR, minibatch_size, init_conv)
+print "\n**** This program will train a simple conv. neural net to classify MNIST images ****\n\n"
+print "Network Size: {}\nLearning Rate: {:.2f}\nMinibatch size: {:d}\n".format(layers, LR, minibatch_size)
 print "\nTraining for {:d} epochs\n".format(epochs)
 
 #input_path = 'C:\Users\Michael\Desktop\Research\Data\mnist\mnist_14_binary.pkl'
@@ -286,6 +302,17 @@ input_path = 'C:\Users\Michael\Desktop\Research\Data\mnist\mnist_binary.pkl'
 f = open(input_path, 'rb')
 dataset = cPickle.load(f)
 
+#training takes 2-3 minutes per epoch on a modern 4-core CPU, depending on minibatch size, ~97% after 10 epochs, ~98% after 30 epochs (binary MNIST images)
+#TODO: batchnorm, ADAM (or at least momentum), dropout, extra conv layer, better initialization, cross-entropy loss, modularity of layers, speedup 
+
 train(dataset, layers, fs, pool_stride, epochs, LR, minibatch_size)
 
+"""
+#for minibatch_size in [16, 32, 64, 128, 256]:
+for LR in [0.01]:#, 0.02, 0.03]:
+    #print "\nminibatch size:", minibatch_size, "\n"
+    print "\nLR:", LR, "\n"
+    for i in range(3):
+        train(dataset, layers, fs, pool_stride, epochs, LR, minibatch_size)
+"""
 
